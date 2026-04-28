@@ -1,3 +1,5 @@
 MODULE MyCompanyCustom;
 
-REQUIRE MyCompanyRu;
+REQUIRE MyCompanyRu,
+        PricelistImportExcel
+;

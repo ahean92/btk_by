@@ -1,0 +1,90 @@
+MODULE PricelistImportExcel;
+
+REQUIRE SalesPricelist;
+
+categoryByName (STRING[50] name) = GROUP AGGR Category c BY name(c);
+
+importItemsFromExcel 'Импорт товаров' (){
+    LOCAL category = STRING[150] (INTEGER);
+    LOCAL barcode = ISTRING[13] (INTEGER);
+    LOCAL id = ISTRING[20] (INTEGER);
+    LOCAL name = STRING[200] (INTEGER);
+    LOCAL uom = ISTRING[50] (INTEGER);
+    LOCAL price = NUMERIC[10,2] (INTEGER);
+    LOCAL description = TEXT (INTEGER);
+    
+    LOCAL pricelist = Pricelist();
+
+    INPUT f = EXCELFILE DO {
+        NEWSESSION {
+
+            IMPORT XLS HEADER FROM f TO category = A, barcode = B, id = C, name = D, uom = E, price = G, description = H;
+
+            FOR INTEGER x = [GROUP MAX INTEGER i BY uom(i)](STRING[50] uom) AND NOT uomName(uom) NEW u = Uom DO {
+                id(u) <- uom;
+                name(u) <- uom;
+            }
+
+            FOR INTEGER x = [GROUP MAX INTEGER i BY category(i)](STRING[50] cat) AND NOT categoryByName(cat) NEW c = Category DO {
+                id(c) <- cat;
+                name(c) <- cat;
+                parent(c) <- categoryByName('Все');
+            }
+
+            NEW pl = Pricelist{
+                type(pl) <- priceListType('retail');
+                note(pl) <- 'Импорт из Excel';
+                pricelist() <- pl;
+            }
+            
+            FOR INTEGER i = [GROUP MAX INTEGER ii BY id(ii)](STRING[50] id) AND NOT item(id) NEW product = Product DO {
+                category(product) <- categoryByName(category(i));
+                
+                IF barCode(barcode(i))
+                    THEN dataDefaultBarCode(product) <- barCode(barcode(i));
+                ELSE NEW b = BarCode{
+                    id(b) <- barcode(i);
+                    item(b) <- product;
+                }
+                
+                id(product) <- id(i);
+                dataName(product) <- name(i);
+
+                uom(product) <- uomName(uom(i));
+                description(product) <- description(i);
+
+                NEW line = PricelistLine{
+                    pricelist(line) <- pricelist();
+                    item(line) <- product;
+                    price(line, priceType('retail')) <- price(i);
+                }
+            }
+            
+            APPLY;
+            MESSAGE 'Import completed';
+        }
+    }
+}
+
+EXTEND FORM migrationData
+    PROPERTIES importItemsFromExcel()
+;
+
+DESIGN migrationData {
+    commons {
+        NEW items {
+            caption = 'Номенклатура';
+            MOVE PROPERTY(importItemsFromExcel());
+        }
+    }
+}
+
+onStarted() + {
+    IF NOT categoryByName('Все') THEN {
+        NEW c = Category {
+            id(c) <- 'Все';
+            name(c) <- 'Все';
+        }
+        APPLY;
+    }
+}
