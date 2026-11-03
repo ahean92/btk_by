@@ -1,0 +1,11 @@
+MODULE ItemDescription;
+
+REQUIRE Item;
+
+// колонка «Описание» (каст TEXT -> STRING) в списке номенклатуры,
+// чтобы искать товар по названию у поставщика через фильтр колонки
+shortDescription 'Описание' (Item i) = STRING[200](description(i)) CHARWIDTH 30;
+
+EXTEND FORM items
+    PROPERTIES(i) READONLY shortDescription
+;

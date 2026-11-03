@@ -37,25 +37,29 @@ importItemsFromExcel 'Импорт товаров' (){
                 pricelist() <- pl;
             }
             
-            FOR INTEGER i = [GROUP MAX INTEGER ii BY id(ii)](STRING[50] id) AND NOT item(id) NEW product = Product DO {
-                category(product) <- categoryByName(category(i));
-                
-                IF barCode(barcode(i))
-                    THEN dataDefaultBarCode(product) <- barCode(barcode(i));
-                ELSE NEW b = BarCode{
-                    id(b) <- barcode(i);
-                    item(b) <- product;
-                }
-                
-                id(product) <- id(i);
-                dataName(product) <- name(i);
+            FOR INTEGER i = [GROUP MAX INTEGER ii BY id(ii)](STRING[50] id) DO {
+                IF NOT item(id(i)) THEN NEW product = Product {
+                    category(product) <- categoryByName(category(i));
 
-                uom(product) <- uomName(uom(i));
-                description(product) <- description(i);
+                    IF barCode(barcode(i))
+                        THEN dataDefaultBarCode(product) <- barCode(barcode(i));
+                        ELSE NEW b = BarCode{
+                            id(b) <- barcode(i);
+                            item(b) <- product;
+                        }
+
+                    id(product) <- id(i);
+                    dataName(product) <- name(i);
+
+                    uom(product) <- uomName(uom(i));
+                }
+
+                // перезапись описания (столбец H «Информация») в любом случае
+                description(item(id(i))) <- description(i);
 
                 NEW line = PricelistLine{
                     pricelist(line) <- pricelist();
-                    item(line) <- product;
+                    item(line) <- item(id(i));
                     price(line, priceType('retail')) <- price(i);
                 }
             }
