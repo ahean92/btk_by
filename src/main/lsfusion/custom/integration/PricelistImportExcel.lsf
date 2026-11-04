@@ -18,7 +18,9 @@ importItemsFromExcel 'Импорт товаров' (){
     INPUT f = EXCELFILE DO {
         NEWSESSION {
 
-            IMPORT XLS HEADER FROM f TO category = A, barcode = B, id = C, name = D, uom = E, price = G, description = H;
+            // NOHEADER: буквы = позиции колонок (при HEADER колонки подбираются по порядку свойств,
+            // из-за пропущенной F цена/описание съезжали на колонку влево); '@row>=1' пропускает заголовок
+            IMPORT XLS WHERE '@row>=1' FROM f TO category = A, barcode = B, id = C, name = D, uom = E, price = G, description = H;
 
             FOR INTEGER x = [GROUP MAX INTEGER i BY uom(i)](STRING[50] uom) AND NOT uomName(uom) NEW u = Uom DO {
                 id(u) <- uom;
