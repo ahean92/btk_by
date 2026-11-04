@@ -8,12 +8,14 @@ title: Reporting
 
 Open **“Reporting”**, then **“Lead report”**.
 
+![Lead report](images/lead-report.webp)
+
 ### Purpose
 
 The report is intended for lead analysis by time and attributes. It helps answer questions such as:
 
 - how many leads were created during a period;
-- which types and statuses occur most often;
+- which statuses occur most often;
 - what the expected revenue is and how it is distributed by sales person;
 - which leads were expected to close in a certain period.
 
@@ -23,10 +25,11 @@ The report is built as a pivot table: you can change dimensions and groupings de
 
 The report typically includes:
 
-- main attributes: **ID**, **Name**, **Lead status**, **Lead type**, **[Partner](../masterdata/partners.md)**, **Sales person**, **Campaign**, **Medium**, **Source**, **Lead priority**, **Lead tags**;
+- main attributes: **ID**, **Name**, **Status**, **[Customer](../masterdata/partners.md)**, **Sales person**, **Priority**, **Tags**;
+- marketing (if the marketing module is enabled): **Campaign**, **Medium**, **Source**;
 - forecast: **Probability**, **Expected closing**, **Expected revenue**;
 - contacts: **Phone**, **Email**;
-- description and additional data (address, website, contact person) — if filled.
+- description and additional data (address, website, legal entity name, contact person) — if filled.
 
 ### “Date interval” filter
 
@@ -43,8 +46,8 @@ Recommendation: when analyzing a monthly pipeline, always set a date interval so
 
 The report includes calculated time dimensions:
 
-- by lead date: minute, hour, date, day of week, week, month, year;
-- by expected closing: day of week, week, month, year.
+- by lead date: minute, hour, date, day of week (name and number), week, month (name and number), year;
+- by expected closing: day of week (name and number), week, month (name and number), year.
 
 This allows, for example, comparing expected closings by weeks or assessing manager workload by months.
 

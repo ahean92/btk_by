@@ -12,7 +12,9 @@ W „Fakturowaniu” wydruki są zwykle dostępne dla:
 
 Dostępność wydruków zależy od konfiguracji i szablonów.
 
-### Konfigurowanie szablonów wydruku dla „Faktur”
+### Konfigurowanie szablonów wydruku
+
+Ten sam mechanizm szablonów wydruku działa identycznie dla [faktur zakupu](bills.md), [faktur](invoices.md) oraz obu typów [płatności](payments.md) — przychodzących i wychodzących — a każdy typ dokumentu ma własną listę szablonów (**szablony faktury zakupu**, **szablony faktury**, **szablony płatności przychodzącej/wychodzącej**). Poniższe kroki wykorzystują faktury jako przykład; faktury zakupu i płatności konfiguruje się w ten sam sposób.
 
 #### Co to jest szablon wydruku
 
@@ -55,14 +57,14 @@ Pola i akcje w karcie szablonu:
 - **Nazwa** — jak formularz będzie się nazywał na liście wyboru podczas drukowania.
 - **Nazwa pliku szablonu** — używana dla predefiniowanych układów (gdy nie wgrano pliku).
 - **Pobierz** — otwiera/pobiera bieżący szablon do podglądu (predefiniowany lub wgrany).
-- **Załaduj** — wgraj swój plik układu (po wgraniu będzie używany).
+- **Prześlij** — wgraj swój plik układu (po wgraniu będzie używany).
 - **Zresetuj** — usuń wgrany plik i wróć do predefiniowanego układu (jeśli jest wskazany).
-- **Format** — określa, jak generowany jest wynik drukowania.
-- **Nazwa pliku eksportu** — nazwa pliku podczas zapisywania wyniku (jeśli wybrany format generuje plik).
+- **Format** — określa, jak generowany jest wynik drukowania: **PDF**, **DOCX**, **XLSX**, **RTF**, **HTML** albo **Printer** (wysyła wynik wprost na drukarkę bez tworzenia pliku).
+- **Nazwa pliku eksportu** — nazwa pliku podczas zapisywania wyniku (używana przez formaty plikowe; ukryta dla formatu **Printer**).
 
 Rekomendacje:
 
-- Jeśli chcesz **zastąpić standardową formę** swoją wersją — użyj **Załaduj**.
+- Jeśli chcesz **zastąpić standardową formę** swoją wersją — użyj **Prześlij**.
 - Jeśli chcesz **wrócić do standardowej formy** — użyj **Zresetuj**.
 
 ---
@@ -74,7 +76,7 @@ Otwórz listę **Typów faktur**, wybierz wymagany typ i przejdź na zakładkę 
 Następnie:
 
 1. Znajdź wymagany szablon na liście.
-2. Włącz go dla bieżącego typu (zwykle checkbox typu „Włączone”).
+2. Włącz go dla bieżącego typu checkboxem **„Incl.”**.
 
 Możesz włączyć wiele szablonów — wtedy podczas drukowania system poprosi o wybór.
 
@@ -118,18 +120,38 @@ Otwórz szablon i kliknij **Zresetuj** (jeśli wcześniej wgrano plik).
 
 #### Przykłady predefiniowanych formularzy
 
-W zależności od dostawy mogą być dostępne typowe predefiniowane wydruki faktury (np. WZ, faktura, uniwersalny dokument przekazania, faktura proforma). Możesz używać ich bez zmian albo zastąpić własnymi plikami przez **Załaduj**.
+W zależności od dostawy mogą być dostępne typowe predefiniowane wydruki faktury (np. WZ, faktura, uniwersalny dokument przekazania, faktura proforma). Możesz używać ich bez zmian albo zastąpić własnymi plikami przez **Prześlij**.
+
+Przy wypełnianiu nowej bazy danymi domyślnymi każda edycja rejestruje neutralne formularze w języku angielskim. W nagłówku każdego z nich jest logo firmy (z karty firmy), jej adres i dane kontaktowe:
+
+- **Invoice** — dla wszystkich typów faktur; zawiera także dane rachunku firmy oraz kwoty opłacone / pozostałe;
+- **Credit note** — dla typów faktur zakupu z flagą **„Zwrot”**; wskazuje fakturę pierwotną;
+- **Payment receipt** — dla płatności od klientów (bank i kasa); zawiera otrzymaną kwotę i dokumenty, z którymi płatność została dopasowana;
+- **Quotation** i **Sales order** — dla typów [zamówień sprzedaży](../sales/orders.md);
+- **Purchase order** — dla typów [zamówień zakupu](../purchase/orders.md);
+- **Delivery note** — dla typu [wydania](../inventory/shipments.md) „Wydanie”;
+- **Reconciliation statement** — [uzgodnienie sald](debt-and-calendar.md) z partnerem za okres; nie ma ani typów dokumentów, ani listy szablonów: jeden jrxml dla całego systemu, pobierany i zastępowany w bloku **„Szablon uzgodnienia sald”** formularza Ustawienia.
+
+Edycje regionalne (polska, rosyjska) rejestrują obok nich własne formularze; jeśli dla typu dokumentu włączono kilka szablonów, podczas drukowania system pyta, którego użyć.
+
+W bazie utworzonej przed pojawieniem się tych formularzy można zarejestrować je ręcznie: utwórz szablon z nazwą pliku szablonu `Invoice.jrxml`, `CreditNote.jrxml`, `PaymentReceipt.jrxml`, `SalesQuotation.jrxml`, `SalesOrder.jrxml`, `PurchaseOrder.jrxml` lub `DeliveryNote.jrxml` i włącz go dla wymaganych typów dokumentów.
+
+Formularze są ułożone na siatce kolumn swojej tabeli pozycji, więc także w formacie **XLSX** powstaje uporządkowany arkusz: każda kolumna tabeli staje się kolumną arkusza, każdy wiersz nagłówka — osobnym wierszem, bez pustych wierszy i kolumn.
 
 ## Raporty
 
-Najczęściej używane:
+W konfiguracji podstawowej w **„Fakturowanie” → „Raportowanie”** dostarczanych jest sześć formularzy:
 
-- raporty [faktur zakupu](bills.md);
-- raporty [faktur](invoices.md);
-- raporty [płatności](payments.md);
-- raporty [długu](debt-and-calendar.md).
+- **„Raport faktur zakupu” (Bills report)** — **tabela przestawna** (pivot) po liniach [faktur zakupu](bills.md). Kolumny dokumentu obejmują numer, datę, dostawcę, status, typ, konta, walutę, warunki płatności oraz termin płatności (Pay before); kolumny linii obejmują towar, jego kategorie, dynamiczne kolumny atrybutów towaru, ilość, cenę i podatki; **miarami** przestawnymi są kwota bez podatku, kwota podatku, kwota oraz kwota w walucie. Panel **„Filtry”** i filtr **„Przedział dat”** pozwalają zawęzić dane, a grupowanie w tabeli przestawnej układasz samodzielnie.
+- **„Raport faktur” (Invoices report)** — ta sama tabela przestawna po liniach [faktur](invoices.md), z polami **„Klient”** i **„Dział”** w miejsce pól dostawcy.
+- **„Płatności”** — jednolity widok wszystkich płatności przychodzących i wychodzących z typem, datą, numerem, partnerem, kontami, firmą i kwotą ze znakiem; na tym samym formularzu jest też zakładka **„Konta”**, która pokazuje bieżące salda kont oraz — po wskazaniu daty selektorem **„Wybierz datę”** — saldo na wybraną datę.
+- **[Kalendarz płatności](debt-and-calendar.md)** — niespłacone saldo i prognoza gotówki na zakres dat, z zakładkami rozbicia **„Typ” (Type)** oraz **„Partner”**.
+- **[Wiekowanie zadłużenia](debt-and-calendar.md)** — dług każdego partnera na datę w podziale według długości przeterminowania, dla klientów albo dostawców.
+- **[Uzgodnienie sald](debt-and-calendar.md)** — rozrachunki z partnerem za okres: saldo otwarcia, dokumenty okresu w układzie księgi, saldo zamknięcia i dwustronny wydruk do potwierdzenia przez partnera.
+
+Wartości [długu](debt-and-calendar.md) widoczne są również bezpośrednio na karcie **faktury zakupu** i **faktury** (dopasowane płatności i pozostały dług) oraz przez dedykowane widoki **„Dług wg partnerów”** / **„Dług wg kontraktów”**.
 
 Rekomendacje:
 
-1. Używaj przedziału dat.
-2. Przy analizie długu grupuj wg [partnera](../masterdata/partners.md) i [kontraktu](../masterdata/contracts.md).
+1. Używaj filtra **„Przedział dat”**.
+2. Do analizy długu korzystaj z widoków **„Dług wg partnerów”** / **„Dług wg kontraktów”** i ich filtra **„Przeterminowane” (Overdue)**, a do podziału według dni po terminie — z raportu **„Wiekowanie zadłużenia”**.

@@ -40,7 +40,7 @@ newValue 'Value' (ItemAttribute a) {
     NEWSESSION {
         NEW v = ItemAttributeValue {
             itemAttribute(v) <- a;
-            DIALOG value OBJECTS v = v DOCKED DO seek(v);
+            DIALOG value OBJECTS v = v WINDOW DO seek(v);
         }
     }
 } IMAGE 'add.png' CHANGEKEY 'INSERT';
@@ -67,17 +67,6 @@ FORM values 'Values'
 
 matches (ItemAttributeValue v, Category c) =
     valid(v, c) OR (GROUP SUM 1 IF set(v, Category cc) AND level(cc, c)) OR NOT countCategory(v);
-
-FORM childValues 'Values'
-    OBJECTS a = ItemAttribute PANEL, c = Category PANEL 
-
-    OBJECTS v = ItemAttributeValue
-    PROPERTIES READONLY value(v)
-    PROPERTIES newValue(a) DRAW v TOOLBAR 
-    PROPERTIES(v) NEWSESSION EDIT, DELETE
-    FILTERS itemAttribute(v) = a,
-            matches(v, c)
-;
 
 FORM attributes 'Attributes'
     OBJECTS a = ItemAttribute
@@ -156,7 +145,7 @@ NAVIGATOR {
 attribute = DATA ItemAttributeValue (Item, ItemAttribute) INDEXED;
 value 'Value' (Item i, ItemAttribute a) = value(attribute(i, a));
 
-CONSTRAINT nonull(ItemAttribute a) AND NOT value(Item i, a) AND valid(a, category(i)) AND NOT SET(nonull(a))
+CONSTRAINT nonull(ItemAttribute a) AND NOT value(Item i, a) AND valid(a, category(i)) AND NOT CHANGED(nonull(a))
     MESSAGE 'The attribute is required';
 
 CONSTRAINT attribute(Item i, ItemAttribute a) AND (countCategory(attribute(i, a)) AND NOT valid(attribute(i, a), category(i)))
@@ -213,19 +202,21 @@ DESIGN attribute {
     }
 }
 
-// filters
-attributeFilter = DATA LOCAL ItemAttributeValue (ItemAttribute);
-value 'Value' (ItemAttribute a) = value(attributeFilter(a));
+// filters (several values of one attribute may be selected)
+attributeFilter 'Incl.' = DATA LOCAL BOOLEAN (ItemAttribute, ItemAttributeValue);
+countAttributeFilter (ItemAttribute a) = GROUP SUM 1 IF attributeFilter(a, ItemAttributeValue v);
+// the condition inside the brackets also restricts the candidates offered by the built-in multi-select editor
+values 'Values' (ItemAttribute a) = GROUP CONCAT (value(ItemAttributeValue v) IF itemAttribute(v) = a) IF attributeFilter(a, v), ', ' ORDER value(v), v CHARWIDTH 20;
 
-notMatchAttributeFilter(Item i) = GROUP SUM 1 IF attributeFilter(ItemAttribute a) AND NOT attributeFilter(a) = attribute(i, a);  
+notMatchAttributeFilter(Item i) = GROUP SUM 1 IF countAttributeFilter(ItemAttribute a) AND NOT attributeFilter(a, attribute(i, a));  
 
-CONSTRAINT attributeFilter(ItemAttribute a) AND NOT itemAttribute(attributeFilter(a)) = a
+CONSTRAINT attributeFilter(ItemAttribute a, ItemAttributeValue v) AND NOT itemAttribute(v) = a
     CHECKED BY attributeFilter MESSAGE '';
 
 META defineItemAttributeForm(form, obj, gobj)
     EXTEND FORM form
         OBJECTS ia = ItemAttribute BEFORE gobj
-        PROPERTIES name(ia) READONLY, value(ia) ON CHANGE { DIALOG childValues OBJECTS a = ia, c = c, v = attributeFilter(ia) CHANGE LIST value(v); }
+        PROPERTIES name(ia) READONLY, values(ia)
         FILTERS NOT notMatchAttributeFilter(obj)
         FILTERS GROUP SUM 1 IF set(ia, Category cc) AND (level(cc, c) OR level(c, cc)) 
     ;

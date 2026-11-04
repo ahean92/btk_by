@@ -1,14 +1,17 @@
 MODULE Manufacturing;
 
 REQUIRE ManufacturingSettings, 
-        Bom, BomNested, BomStructureCost, BomItem, BomImport, BomOperation,
-        ManufacturingOrder, ManufacturingOrderInitial,
+        Bom, BomNested, BomSearch, BomStructureCost, BomItem, BomImport, BomOperation, 
+        BomAutodeskViewer,
+        ManufacturingOrder, ManufacturingOrderInitial, ManufacturingOrderEmail,
         ManufacturingOrderInProgress, ManufacturingOrderDone, ManufacturingOrderCanceled,
         ManufacturingOrderBulkCreate, ManufacturingOrderTotal,
         ManufacturingOrderRes, ManufacturingOrderInv, ManufacturingOrderCost, ManufacturingOrderBillCost,
         ManufacturingOrderScrap, ManufacturingOrderScrapCost,
         ManufacturingOrderLot, ManufacturingOrderLotPrint, 
         ManufacturingOrderPrint, ManufacturingOrderReport,
+        ManufacturingOrderAutodeskViewer,
         WorkCenter, WorkCenterLoad,
         WorkOrder, WorkOrderFilter, WorkOrderSelection, WorkOrderLot, 
-        WorkOrderInProgress, WorkOrderDone, WorkOrderOperation;
+        WorkOrderInProgress, WorkOrderDone, WorkOrderOperation,
+        ManufacturingDashboard;

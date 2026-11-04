@@ -40,7 +40,7 @@ Zwykle karta zawiera:
 - **[Lokalizację](../inventory/locations.md)**;
 - **Adres dostawy** (jeśli używany);
 - **Typ zamówienia** (jeśli używanych jest wiele typów);
-- **Osobę odpowiedzialną**.
+- **Nasz przedstawiciel** — pracownik firmy odpowiedzialny za zamówienie; domyślnie podstawiany jest bieżący użytkownik, jeśli jest powiązany z pracownikiem.
 
 ### Linie zamówienia
 
@@ -56,13 +56,13 @@ Rekomendacja: najpierw uzupełnij klienta i lokalizację, a dopiero potem dodawa
 
 ## Potwierdzanie i anulowanie
 
-Zamówienie zwykle przechodzi przez taki cykl życia:
+Zamówienie przechodzi przez statusy **„Projekt” → „Wysłane” → „Potwierdzone” → „Zablokowane”** i może zostać **anulowane** z dowolnego statusu poza „Projekt”.
 
-1. Projekt.
-2. Potwierdzone.
-3. Anulowane (jeśli zamówienie nie będzie realizowane).
+Szczegóły statusów, przejść i ograniczeń: [Przepływ pracy i statusy zamówień](workflow-and-statuses.md).
 
-Szczegóły statusów i ograniczeń: [Przepływ pracy i statusy zamówień](workflow-and-statuses.md).
+## Drukowanie
+
+System dostarcza dla zamówień sprzedaży dwa standardowe szablony wydruku: **Quotation** (oferta z datą ważności) i **Sales order**; **„Drukuj”** pyta, którego użyć. Zobacz [Raporty i drukowanie](../invoicing/reports-and-printing.md).
 
 ## Dokumenty powiązane
 

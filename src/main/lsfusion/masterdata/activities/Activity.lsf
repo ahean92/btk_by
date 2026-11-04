@@ -1,6 +1,6 @@
 MODULE Activity;
 
-REQUIRE Employee, ActivityType, Doc, DateUtils;
+REQUIRE Employee, ActivityType, Doc, DateUtils, Authentication;
 
 NAMESPACE MasterData;
 
@@ -23,8 +23,9 @@ period (Activity a) = CONCAT '-', toChar(time(a), 'HH24:MI'), toChar(till(a), 'H
 
 name '{Name}' = DATA ISTRING (Activity);
 
-assignedTo 'Assigned to' = DATA Employee (Activity);
+assignedTo 'Assigned to' = DATA Employee (Activity) INDEXED;
 nameAssignedTo 'Assigned to' (Activity a) = name(assignedTo(a));
+avatarBase64AssignedTo (Activity a) = avatarBase64(assignedTo(a));
 assignedTo (Activity a) <- currentUser() WHEN SET(a IS Activity);
 
 attends = DATA BOOLEAN (Activity, Partner);
@@ -35,7 +36,7 @@ CLASS ABSTRACT ActivityObject;
 name '{Name}' = ABSTRACT ISTRING (ActivityObject) CHARWIDTH 30;
 
 object 'Object' = DATA ActivityObject (Activity) INDEXED;
-typeObject 'Object type' (Activity a) = objectClassName(object(a));
+typeObject 'Object type' (Activity a) = className(object(a));
 nameObject 'Object' (Activity a) = name(object(a));
 typeNameObject 'Object' (Activity a) = CONCAT ' : ', typeObject(a), nameObject(a);
 
@@ -48,7 +49,7 @@ description 'Description' = DATA RICHTEXT (Activity);
 feedback 'Feedback' = DATA RICHTEXT (Activity);
 
 done 'Done' = DATA BOOLEAN (Activity);
-opened 'Opened' (Activity a) = a IS Activity AND NOT done(a); 
+opened 'Opened' (Activity a) = a IS Activity AND NOT done(a) MATERIALIZED INDEXED; 
 
 countOpenedActivity (ActivityObject o) = GROUP SUM 1 IF object(Activity a) = o AND opened(a);
 
@@ -119,94 +120,81 @@ DESIGN inputFeedback {
 }
 
 setDone 'Done' (Activity act) {
-    DIALOG inputFeedback OBJECTS f INPUT NOMANAGESESSION DO {
+    DIALOG inputFeedback OBJECTS f INPUT DO {
         done(act) <- TRUE;
         feedback(act) <- f;
     }
 }
 
+//delete 'Delete' (Activity a) { DELETE a; }
+
+// employees fed to the calendar popup picker (OPTIONS) - anyone who has an OPEN
+// assignment on some activity, so you can reassign to any of them (not interval-limited)
+countOpenAssignedActivity (Employee e) = GROUP SUM 1 IF assignedTo(Activity a) = e AND opened(a);
+activityEmployees () = JSON FROM id = Employee e, name = MasterData.name(e), avatar = avatarBase64(e) WHERE MasterData.name(e) AND active(e) AND countOpenAssignedActivity(e);
+
+// all UI text literals for the custom views are passed through OPTIONS (instead of being
+// frozen in the .js); plain English text relies on reverse translation to localize them
+activityI18n () = JSON FROM
+    noActivities = 'No activities',
+    done = 'Done',
+    edit = 'Edit',
+    delete = 'Delete',
+    open = 'Open activities',
+    openObject = 'Open object',
+    overdue = 'Overdue',
+    all = 'All',
+    today = 'Today',
+    agenda = 'Agenda',
+    month = 'Month',
+    week = 'Week',
+    unassigned = 'Unassigned',
+    noName = '(no name)',
+    allDay = 'all day',
+    markAsDone = 'Mark as Done',
+    newActivity = 'New activity on this day',
+    more = 'more',
+    activitiesWord = 'activities',
+    overdueWord = 'overdue';
+
+addActivity (DATE d) {
+    NEWSESSION {
+        NEW na = Activity {
+            dueDate(na) <- d;
+            DIALOG activity OBJECTS a = na FLOAT;
+        }
+    }
+}
+
 FORM activities 'Activities'
-    OBJECTS at = ActivityType
-
-    PROPERTIES newActivity(at) COLUMNS (at) HEADER name(at)
-
-    OBJECTS a = Activity CALENDAR
+    OBJECTS a = Activity CUSTOM 'activityCalendar' OPTIONS JSON FROM employees = activityEmployees(), 
+                                                                     i18n = activityI18n(), 
+                                                                     locale = language(currentUser())
     PROPERTIES(a) READONLY BACKGROUND RGB(224,255,224) IF done(a)
-                           date = dueDate CHANGEABLE, time, till,
-                           nameType, gname = name, nameObject, nameAssignedTo, done
-    PROPERTIES(a) READONLY PANEL pnameType = nameType, pname = name, pdescription = description
-    PROPERTIES(a) peditObject = editObject HEADER typeNameObject(a)
-    PROPERTIES(a) PANEL setDone, edit = EDIT NEWSESSION, delete = DELETE
-    ORDERS date DESC, time(a)
+                           date = dueDate CHANGEABLE APPLY, time, till,
+                           nameType, gname = name, nameObject, done, description,
+                           tperiod = period, daysLeft, textDateDuration,
+                           nameAssignedTo, avatarAssignedTo = avatarBase64AssignedTo
+    PROPERTIES(a) assignedTo APPLY
+    PROPERTIES(a) GRID setDone NEWSESSION APPLY, edit = EDIT NEWSESSION, delete = DELETE, editObject
 
-    FILTERGROUP active
-        FILTER 'Opened' NOT done(a) DEFAULT
-    
+    CUSTOMS
+        addActivity[DATE]
+
     LIST Activity OBJECT a
 ;
 
 DESIGN activities {
     OBJECTS {
-        NEW header {
-            alignment = STRETCH;
-            horizontal = TRUE;
-            NEW actions {
-                fill = 1;
-                MOVE PROPERTY(newActivity(at));
-            }
-            NEW filters {
-                alignment = STRETCH;
-                horizontal = TRUE;
-                MOVE FILTERGROUPS(a);
-            }
-        }
-        MOVE BOX(a) {
+        BOX(a) {
             caption = '';
+//            fill = 1;
             GRID(a) {
-                size = (600, 400);
-                MOVE PROPERTY(pnameType);
-                MOVE PROPERTY(pname);
-                MOVE PROPERTY(peditObject);
-                MOVE PROPERTY(pdescription) {
-                    captionVertical = TRUE;
-                    fill = 1;
-                }
-                NEW panelActions {
-                    horizontal = TRUE;
-                    alignment = STRETCH;
-                    MOVE PROPERTY(setDone(a));
-                    MOVE PROPERTY(edit);
-                    MOVE PROPERTY(delete);
-                }
+//                fill = 1;
+                size = (900, 600);
             }
         }
     }
-}
-
-@defineDocFilter(activities, activity, ActivityType, type, a, 'Type', type);
-@defineDocFilter(activities, activity, Employee, assignedTo, a, 'Assigned to', assignedTo);
-@defineDocFilterProperty(activities, activity, Employee, attendee, a, 'Attendee', attendee);
-
-EXTEND FORM activities
-    FILTERS assignedTo(a) = activityAttendee() OR attends(a, activityAttendee()) OR NOT activityAttendee()
-;
-
-calendarName = ABSTRACT VALUE HTML (Activity);
-calendarName(Activity a) += HTML(CONCAT ' ',
-    period(a),
-    '<b>' + nameType(a) + '</b>' IF NOT activityType(),
-    '<u>' + nameAssignedTo(a) + '</u>' IF NOT activityAssignedTo(),
-    name(a),
-    '- <i>' + typeNameObject(a) + '</i>');
-
-EXTEND FORM activities
-    PROPERTIES READONLY name = calendarName(a)
-
-    EVENTS ON INIT { activityAssignedTo() <- currentUser(); }
-;
-
-DESIGN activities {
-    PROPERTY(name) { charWidth = 50;}
 }
 
 NAVIGATOR {
@@ -226,13 +214,16 @@ META defineObjectActivity (obj, let, container, nameProp)
     name(###obj o) += nameProp(o);
 
     EXTEND FORM obj
-        OBJECTS act = Activity CUSTOM 'activities'
-        PROPERTIES(act) nameType, dueDate, textDateDuration, daysLeft, name, nameAssignedTo, description, done
-        PROPERTIES setDone(act),
-                   editAct = edit(act) ON CHANGE {
-                        SHOW activity OBJECTS a = act FLOAT;
-                   },
-                   deleteAct = DELETE(act)
+        OBJECTS act = Activity CUSTOM 'activities' OPTIONS JSON FROM i18n = activityI18n()
+        PROPERTIES(act) nameType, dueDate, textDateDuration, daysLeft, name, nameAssignedTo, avatarBase64AssignedTo, description, done
+        // GRID: the actions are columns of the custom view, so activities.js runs them with
+        // changeProperty('setDone' / 'editAct' / 'deleteAct', row); a PANEL action is not a column of the view,
+        // and the form resolves it only by its group-qualified name ('act.editAct')
+        PROPERTIES(act) GRID setDone,
+                        editAct = edit ON CHANGE {
+                             SHOW activity OBJECTS a = act FLOAT;
+                        },
+                        deleteAct = DELETE
         ORDERS dueDate(act)
         FILTERS object(act) = let,
             NOT PREV(done(act))
@@ -260,7 +251,7 @@ META defineObjectActivity (obj, let, container, nameProp)
                 showIf = countActivityTypes();
                 alignment = STRETCH;
                 caption = badged('Activities', countOpenedActivity(let));
-                MOVE PROPERTY(newActivity(let, at));
+                MOVE PROPERTY(newActivity(let, at)) { valueClass = 'activity-add-btn'; }
                 MOVE GRID(act) {
                     width = 400;
                     flex = 0;

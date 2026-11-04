@@ -37,14 +37,34 @@ W liniach określa się:
 - kwotę (zwykle wyliczana automatycznie);
 - [podatki](../invoicing/taxes.md) (jeśli używane).
 
+### Automatyczne wypełnianie zamówienia
+
+Jeśli włączone jest planowanie wydań magazynowych, karta zamówienia zakupu może obliczać sugerowane ilości zakupu w siatce towarów.
+
+1. Wybierz **Dostawcę**, **Lokalizację** i **Datę**.
+2. Sprawdź pola **Data od** i **Data do** nad siatką towarów. Po wybraniu dostawcy system uzupełnia ten okres względem daty zamówienia: od liczby dni określonej w polu **Okres zamówienia** dostawcy do dnia poprzedzającego datę zamówienia. Jeśli dla dostawcy nie podano okresu, używane jest 7 dni. Okres można zmienić ręcznie przed wypełnieniem zamówienia. Jeśli później zmienisz datę zamówienia, sprawdź te daty przed uruchomieniem **Auto order**.
+3. Użyj filtra **Auto order**, aby pokazać tylko towary z sugerowaną ilością.
+4. Uruchom akcję **Auto order**.
+
+Siatka towarów pokazuje kolumny pomocnicze dla wybranego okresu:
+
+- **Planowane** i **Wysłane** — ilości wydań dla okresu;
+- **Oczekujące wydanie** — zapotrzebowanie z wydań, które nie zostało jeszcze wysłane;
+- **Auto order** — sugerowana ilość zakupu, zaokrąglana w górę do opakowania zakupu towaru, jeśli jest skonfigurowane.
+
+Akcja **Auto order** dodaje linie tylko dla towarów, które są aktualnie widoczne w siatce, mają dodatnią wartość **Auto order** i nie występują jeszcze w zamówieniu. Istniejące ilości w liniach nie są nadpisywane.
+
+Jeśli włączona jest produkcja, ten sam mechanizm uwzględnia również zapotrzebowanie materiałowe: **Oczekujące zużycie** z zamówień produkcji oczekujących na wykonanie oraz **Zużyte** materiały z zamówień produkcji w statusie Wykonano w wybranym okresie.
+
 ## Statusy i akcje
 
 Zamówienia zakupu zwykle mają następujący cykl życia:
 
-1. **Projekt** — zamówienie można swobodnie edytować.
-2. **Wysłano** — zamówienie zostało wysłane do dostawcy (jeśli używane jest wysyłanie).
-3. **Potwierdzone** — zamówienie jest potwierdzone do realizacji.
-4. **Anulowan** — zamówienie jest wyłączone z dalszego przetwarzania.
+1. **Projekt** — zamówienie można swobodnie edytować; status domyślny dla nowego zamówienia.
+2. **Wysłane** — zamówienie zostało wysłane do dostawcy e-mailem akcją **„Wyślij”** (temat, treść, szablon załącznika i adres kopii konfigurowane w [typie zamówienia](settings.md)). Dostępne z „Projekt”; ze statusu „Wysłane” można od razu przejść do „Potwierdzone”.
+3. **Potwierdzone** — zamówienie jest potwierdzone do realizacji. Dostępne z „Projekt” lub „Wysłane”. W tym statusie pojawia się akcja **„Utwórz fakturę zakupu”** (jeśli jest pozostała ilość do zafakturowania), a przyjęcie jest automatycznie tworzone/aktualizowane.
+4. **Zablokowane** — zamówienie zamknięte dla dalszej pracy (np. po pełnej realizacji). Dostępne wyłącznie z „Potwierdzone” akcją **„Zablokuj”**. W [typie zamówienia](settings.md) można włączyć ograniczenia zabraniające blokady przy aktywnych przyjęciach, niepełnym przyjęciu lub niepełnej zapłacie.
+5. **Anulowane** — zamówienie wyłączone z dalszego przetwarzania. Dostępne ze wszystkich statusów oprócz „Projekt” i „Anulowane”.
 
 Zachowanie statusów może się różnić w zależności od ustawień. Zwykle po potwierdzeniu obowiązuje więcej ograniczeń w zmianach.
 
@@ -55,6 +75,8 @@ Jeśli w systemie skonfigurowano wysyłanie, karta zamówienia zakupu udostępni
 - generowany jest wydruk na podstawie wybranego szablonu;
 - wysyłany jest e-mail do dostawcy;
 - zamówienie zakupu przechodzi w status **„Wysłano”**.
+
+System dostarcza neutralny szablon wydruku **Purchase order** (logo firmy, dostawca, miejsce dostawy, pozycje i sumy); wybierz go jako **„Domyślny szablon”** w typie zamówienia, aby był dołączany do wiadomości.
 
 ### Potwierdzanie zamówienia zakupu
 

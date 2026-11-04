@@ -29,6 +29,10 @@ GROUP P2DaneId EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:DaneIdentyfikacy
 GROUP P2Adres EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Adres' : Podmiot2;
 GROUP P2Kontakt EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:DaneKontaktowe' : Podmiot2;
 
+GROUP P3DaneId EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:DaneIdentyfikacyjne';
+GROUP P3Adres EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Adres';
+GROUP P3Kontakt EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:DaneKontaktowe';
+
 // export
 FORM FA3XmlExport
     OBJECTS f = Faktura PANEL
@@ -52,7 +56,15 @@ FORM FA3XmlExport
     PROPERTIES(f) IN P2DaneId p2_NIP EXTID 'NIP', p2_Nazwa EXTID 'Nazwa'
     PROPERTIES(f) IN P2Adres p2_KodKraju EXTID 'KodKraju', p2_AdresL1 EXTID 'AdresL1', p2_AdresL2 EXTID 'AdresL2'
     PROPERTIES(f) IN P2Kontakt p2_Email EXTID 'Email', p2_Telefon EXTID 'Telefon'
-    PROPERTIES    IN Podmiot2 p2_NrKlienta(f) EXTID 'NrKlienta', = 2 EXTID 'JST', = 2 EXTID 'GV' 
+    PROPERTIES    IN Podmiot2 p2_NrKlienta(f) EXTID 'NrKlienta', = 2 EXTID 'JST', = 2 EXTID 'GV'
+    
+    // Podmiot3
+    OBJECTS p3 = Podmiot3 EXTID 'Podmiot3'
+    PROPERTIES(p3) IN P3DaneId NIP, Nazwa
+    PROPERTIES(p3) IN P3Adres KodKraju, AdresL1, AdresL2
+    PROPERTIES(p3) IN P3Kontakt Email, Telefon
+    PROPERTIES(p3) NrKlienta, Rola
+    FILTERS faktura(p3) = f
 
     // Fa
     PROPERTIES(f) IN Fa KodWaluty, invoiceDate EXTID 'P_1', invoiceNumber EXTID 'P_2', deliveryDate EXTID 'P_6'
@@ -86,7 +98,7 @@ FORM FA3XmlExport
 
     // FaWiersz
     OBJECTS w = FaWiersz EXTID 'FaWiersz' IN Fa
-    PROPERTIES(w) NrWierszaFa, description EXTID 'P_7', GTIN, nameUom EXTID 'P_8A', quantity EXTID 'P_8B', price EXTID 'P_9A', untaxedAmount EXTID 'P_11', amount EXTID 'P_11A', taxes EXTID 'P_12', correction EXTID 'StanPrzed'
+    PROPERTIES(w) NrWierszaFa, description EXTID 'P_7', GTIN, nameUom EXTID 'P_8A', quantity EXTID 'P_8B', price EXTID 'P_9A', untaxedAmount EXTID 'P_11', vatAmount EXTID 'P_11Vat', amount EXTID 'P_11A', taxes EXTID 'P_12', correction EXTID 'StanPrzed'
     FILTERS faktura(w) = f
 
     PROPERTIES(f) IN Platnosc Zaplacono EXTID 'Zaplacono', DataZaplaty EXTID 'DataZaplaty'
@@ -99,8 +111,12 @@ FORM FA3XmlExport
     PROPERTIES(f) IN Platnosc FormaPlatnosci EXTID 'FormaPlatnosci'
 
     OBJECTS rb = RachunekBankowy EXTID 'RachunekBankowy' IN Platnosc
-    PROPERTIES(rb) number EXTID 'NrRB'
+    PROPERTIES(rb) number EXTID 'NrRB', SWIFT, RachunekWlasnyBanku, NazwaBanku, OpisRachunku
     FILTERS faktura(rb) = f
+
+    OBJECTS rbf = RachunekBankowyFaktora EXTID 'RachunekBankowyFaktora' IN Platnosc
+    PROPERTIES(rbf) number EXTID 'NrRB', SWIFT, RachunekWlasnyBanku, NazwaBanku, OpisRachunku
+    FILTERS faktura(rbf) = f
 
     OBJECTS dof = DodatkowyOpis EXTID 'DodatkowyOpis' IN Fa
     PROPERTIES(dof) Klucz EXTID 'Klucz', Wartosc EXTID 'Wartosc'
@@ -158,11 +174,11 @@ RodzajFaktury = DATA LOCAL STRING();
 
 PrzyczynaKorekty = DATA STRING ();
 DataWystFaKorygowanej = DATA STRING ();
-NrFaKorygowanej = DATA STRING[50] ();
+NrFaKorygowanej = DATA STRING[256] ();
 NrKSeFFaKorygowanej = DATA STRING[36] ();
 
 NrKSeFZN = DATA LOCAL INTEGER(INTEGER);
-NrFaZaliczkowej = DATA LOCAL STRING[50](INTEGER);
+NrFaZaliczkowej = DATA LOCAL STRING[256](INTEGER);
 NrKSeFFaZaliczkowej = DATA LOCAL STRING[36](INTEGER);
 
 NrWierszaFa = DATA LOCAL STRING(INTEGER);
@@ -173,6 +189,7 @@ P_8B = DATA LOCAL NUMERIC[16,3](INTEGER);
 P_9A = DATA LOCAL NUMERIC[10,2](INTEGER);
 P_9B = DATA LOCAL NUMERIC[10,2](INTEGER);
 P_11 = DATA LOCAL NUMERIC[14,2](INTEGER);
+P_11Vat = DATA LOCAL NUMERIC[14,2](INTEGER);
 P_11A = DATA LOCAL NUMERIC[14,2](INTEGER);
 P_12 = DATA LOCAL STRING(INTEGER);
 StanPrzed = DATA LOCAL INTEGER(INTEGER);
@@ -188,9 +205,29 @@ Zaplacono = DATA LOCAL INTEGER();
 DataZaplaty = DATA LOCAL DATE();
 FormaPlatnosci = DATA LOCAL INTEGER();
 RachunekBankowyNumber = DATA LOCAL STRING (INTEGER);
+rb_SWIFT = DATA LOCAL STRING (INTEGER);
+rb_RachunekWlasnyBanku = DATA LOCAL INTEGER (INTEGER);
+rb_NazwaBanku = DATA LOCAL STRING (INTEGER);
+rb_OpisRachunku = DATA LOCAL STRING (INTEGER);
+
+RachunekBankowyFaktoraNumber = DATA LOCAL STRING (INTEGER);
+rbf_SWIFT = DATA LOCAL STRING (INTEGER);
+rbf_RachunekWlasnyBanku = DATA LOCAL INTEGER (INTEGER);
+rbf_NazwaBanku = DATA LOCAL STRING (INTEGER);
+rbf_OpisRachunku = DATA LOCAL STRING (INTEGER);
 DodatkowyOpisKlucz = DATA LOCAL STRING (INTEGER);
 DodatkowyOpisWartosc = DATA LOCAL STRING (INTEGER);
 StopkaFaktury = DATA LOCAL ISTRING[3500] (INTEGER);
+
+p3_NIP = DATA LOCAL STRING (INTEGER);
+p3_Nazwa = DATA LOCAL STRING (INTEGER);
+p3_KodKraju = DATA LOCAL STRING (INTEGER);
+p3_AdresL1 = DATA LOCAL STRING (INTEGER);
+p3_AdresL2 = DATA LOCAL STRING (INTEGER);
+p3_Email = DATA LOCAL STRING (INTEGER);
+p3_Telefon = DATA LOCAL STRING (INTEGER);
+p3_NrKlienta = DATA LOCAL STRING (INTEGER);
+p3_Rola = DATA LOCAL INTEGER (INTEGER);
 
 FORM FA3XmlImport FORMEXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Faktura'
     PROPERTIES ATTR ='http://crd.gov.pl/xml/schematy/dziedzinowe/mf/2022/01/05/eD/DefinicjeTypy/' EXTID 'xmlns:etd', ='http://www.w3.org/2001/XMLSchema' EXTID 'xmlns:xsd', ='http://www.w3.org/2001/XMLSchema-instance' EXTID 'xmlns:xsi'
@@ -220,6 +257,22 @@ FORM FA3XmlImport FORMEXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Faktura'
     PROPERTIES() IN P2Kontakt
         p2_Email EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Email',
         p2_Telefon EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Telefon'
+
+    OBJECTS p3 = INTEGER EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Podmiot3' IN Fa
+    PROPERTIES(p3) IN P3DaneId
+        p3_NIP EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:NIP',
+        p3_Nazwa EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Nazwa'
+    PROPERTIES(p3) IN P3Adres
+        p3_KodKraju EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:KodKraju',
+        p3_AdresL1 EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:AdresL1',
+        p3_AdresL2 EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:AdresL2'
+    PROPERTIES(p3) IN P3Kontakt
+        p3_Email EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Email',
+        p3_Telefon EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Telefon'
+    PROPERTIES(p3)
+        p3_NrKlienta EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:NrKlienta',
+        p3_Rola EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Rola'
+
     PROPERTIES() IN Fa
         KodWaluty EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:KodWaluty',
         P_1 EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:P_1',
@@ -265,6 +318,7 @@ FORM FA3XmlImport FORMEXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Faktura'
         P_9A EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:P_9A',
         P_9B EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:P_9B',
         P_11 EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:P_11',
+        P_11Vat EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:P_11Vat',
         P_11A EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:P_11A',
         P_12 EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:P_12',
         StanPrzed EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:StanPrzed',
@@ -273,7 +327,6 @@ FORM FA3XmlImport FORMEXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Faktura'
         PKWIU EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:PKWIU',
         CN EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:CN',
         PKOB EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:PKOB'
-    FILTERS imported(faWiersz)
 
     PROPERTIES() IN Platnosc
         Zaplacono EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Zaplacono',
@@ -286,7 +339,20 @@ FORM FA3XmlImport FORMEXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:Faktura'
         FormaPlatnosci EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:FormaPlatnosci'
 
     OBJECTS rb = INTEGER EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:RachunekBankowy' IN Platnosc
-    PROPERTIES(rb) RachunekBankowyNumber EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:NrRB'
+    PROPERTIES(rb)
+        RachunekBankowyNumber EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:NrRB',
+        rb_SWIFT EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:SWIFT',
+        rb_RachunekWlasnyBanku EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:RachunekWlasnyBanku',
+        rb_NazwaBanku EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:NazwaBanku',
+        rb_OpisRachunku EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:OpisRachunku'
+
+    OBJECTS rbf = INTEGER EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:RachunekBankowyFaktora' IN Platnosc
+    PROPERTIES(rbf)
+        RachunekBankowyFaktoraNumber EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:NrRB',
+        rbf_SWIFT EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:SWIFT',
+        rbf_RachunekWlasnyBanku EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:RachunekWlasnyBanku',
+        rbf_NazwaBanku EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:NazwaBanku',
+        rbf_OpisRachunku EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:OpisRachunku'
 
     OBJECTS dof = INTEGER EXTID '=http://crd.gov.pl/wzor/2025/06/25/13775/:DodatkowyOpis' IN Fa
     PROPERTIES(dof)
@@ -345,7 +411,7 @@ import (Faktura nf) {
         value(s) <- StopkaFaktury(si);
     }
 
-    FOR imported(INTEGER faWiersz) DO NEW fw = FaWiersz {
+    FOR NrWierszaFa(INTEGER faWiersz) DO NEW fw = FaWiersz {
         faktura(fw) <- nf;
         NrWierszaFa(fw) <- INTEGER(NrWierszaFa(faWiersz));
         GTIN(fw) <- GTIN(faWiersz);
@@ -354,6 +420,7 @@ import (Faktura nf) {
         quantity(fw) <- P_8B(faWiersz);
         price(fw) <- OVERRIDE P_9A(faWiersz), P_9B(faWiersz);
         untaxedAmount(fw) <- P_11(faWiersz);
+        vatAmount(fw) <- P_11Vat(faWiersz);
         amount(fw) <- P_11A(faWiersz);
         taxes(fw) <- P_12(faWiersz);
         correction(fw) <- StanPrzed(faWiersz);
@@ -377,5 +444,32 @@ import (Faktura nf) {
     FOR RachunekBankowyNumber(INTEGER rb) DO NEW r = RachunekBankowy {
         faktura(r) <- nf;
         number(r) <- RachunekBankowyNumber(rb);
+        SWIFT(r) <- rb_SWIFT(rb);
+        RachunekWlasnyBanku(r) <- rb_RachunekWlasnyBanku(rb);
+        NazwaBanku(r) <- rb_NazwaBanku(rb);
+        OpisRachunku(r) <- rb_OpisRachunku(rb);
+    }
+
+    FOR RachunekBankowyFaktoraNumber(INTEGER rbf) DO NEW r = RachunekBankowyFaktora {
+        faktura(r) <- nf;
+        number(r) <- RachunekBankowyFaktoraNumber(rbf);
+        SWIFT(r) <- rbf_SWIFT(rbf);
+        RachunekWlasnyBanku(r) <- rbf_RachunekWlasnyBanku(rbf);
+        NazwaBanku(r) <- rbf_NazwaBanku(rbf);
+        OpisRachunku(r) <- rbf_OpisRachunku(rbf);
+    }
+
+    FOR p3_NIP(INTEGER p3) OR p3_Nazwa(p3) OR p3_Rola(p3) DO NEW p = Podmiot3 {
+        faktura(p) <- nf;
+        partner(p) <- partnerNip(p3_NIP(p3));
+        NIP(p) <- p3_NIP(p3);
+        Nazwa(p) <- p3_Nazwa(p3);
+        KodKraju(p) <- p3_KodKraju(p3);
+        AdresL1(p) <- p3_AdresL1(p3);
+        AdresL2(p) <- p3_AdresL2(p3);
+        Email(p) <- p3_Email(p3);
+        Telefon(p) <- p3_Telefon(p3);
+        NrKlienta(p) <- p3_NrKlienta(p3);
+        Rola(p) <- p3_Rola(p3);
     }
 }

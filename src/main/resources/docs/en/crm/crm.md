@@ -7,12 +7,12 @@ This set of documents describes end-user work with leads: the lead card and list
 ## Getting started
 
 1. Open the **“Leads”** section (in the navigation tree it is located in the **“Operations”** group).
-2. Create a lead (the **“New”** button in the list).
+2. Create a lead (the **“Add”** button in the list).
 3. Fill in the minimum so the lead is easy to maintain:
    - **Name**
    - **Sales person**
-   - **Lead type** and **Lead status** (if the pipeline is configured)
-   - if available — **[Partner](../masterdata/partners.md)**, **Phone**, **Email**
+   - **Type** and **Status** (if the pipeline is configured)
+   - if available — **[Customer](../masterdata/partners.md)**, **Phone**, **Email**
 4. For control, use:
    - filters **“Opened”**, **“Closed”**, **“My leads”**;
    - the **[“Kanban”](kanban.md)** tab (columns by status, quick drag-and-drop between stages).
@@ -31,7 +31,7 @@ Detailed instructions:
 
 #### Lead
 
-A potential sale or inquiry that goes through work stages (statuses). A lead can be linked to a [partner](../masterdata/partners.md), an owner employee, a priority and a set of tags.
+A potential sale or inquiry that goes through work stages (statuses). A lead can be linked to a [customer](../masterdata/partners.md), an owner employee, a priority and a set of tags.
 
 #### Lead type
 
@@ -43,7 +43,7 @@ A stage of working with the lead. A status can be “closed” (such statuses ar
 
 #### Lost and lost reason
 
-A special way to close a lead: the user marks the lead as **Lost** and selects a **Lost reason**. After that, the lead receives the status configured in settings as “Lost”.
+A special way to close a lead: the user marks the lead as **Lost** and selects a **Lost reason**. After that, the lead receives the status configured in settings as “Lost” (this status is normally also marked as closed — see [Settings and reference data](settings.md)).
 
 #### Lead priority
 
@@ -100,10 +100,10 @@ Responsible for:
 
 Check in **“CRM → Configuration → Settings”** whether the **“Order type”** and **“Invoice type”** parameters are set. If the parameters are not set or you do not have permissions, the buttons are not shown.
 
-#### Why can’t I save the lead after changing the type?
+#### Why can’t I save the lead?
 
-The lead type can restrict the allowed statuses. After changing the type, select a status that is allowed for that type.
+The lead type can restrict the allowed statuses. If the selected status is not allowed for the lead type, the system will not save the lead — choose a status allowed for that type. When you change the type, the status is reset automatically only if the current status is not allowed for the new type.
 
-#### Why is the lead board not shown?
+#### Why are there no columns on the lead board?
 
 Most often, the reason is that statuses are marked as “Closed”, or statuses are not allowed for the selected lead type.

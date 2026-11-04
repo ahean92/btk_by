@@ -8,9 +8,9 @@ Jeśli w Twojej konfiguracji brakuje niektórych pozycji menu lub pól, jest to 
 
 ## Spis treści
 
-- [Szybki start](#quick-start)
-- [Nawigacja](#navigation)
-- [Ogólne zasady pracy ze słownikami](#general-rules-for-working-with-directories)
+- [Szybki start](#szybki-start)
+- [Nawigacja](#nawigacja)
+- [Ogólne zasady pracy ze słownikami](#ogólne-zasady-pracy-ze-słownikami)
 
 Sekcje:
 
@@ -24,6 +24,10 @@ Sekcje:
 - [Umowy](contracts.md)
 - [Aktywności](activities.md)
 
+Powiązane integracje:
+
+- [Autodesk](autodesk/autodesk.md) — łączenie modeli 3D z Autodesk Platform Services (APS) z projektami, zestawieniami materiałów i zamówieniami produkcji.
+
 ## Szybki start
 
 Poniżej znajduje się typowa kolejność uzupełniania słowników przed rozpoczęciem pracy.
@@ -31,7 +35,7 @@ Poniżej znajduje się typowa kolejność uzupełniania słowników przed rozpoc
 1. Uzupełnij **kraje**, jeśli używasz adresów z krajem.
 2. Uzupełnij **waluty** i wskaż **domyślną walutę**.
 3. Uzupełnij **kursy walutowy** (jeśli rozliczasz się w różnych walutach).
-4. Utwórz **jednostki miary** i, jeśli trzeba, **kategorie**.
+4. Utwórz **jednostki miary** i **kategorie** (kategoria jest obowiązkowa dla każdego towaru).
 5. Utwórz **towary** (produkty/usługi): wskaż kategorię i jednostkę miary.
 6. Utwórz **partnerów** (klientów/dostawców itp.) i uzupełnij dane kontaktowe.
 7. Jeśli trzeba, utwórz **działy** dla partnerów (lokalizacje, oddziały, adresy).
@@ -41,16 +45,17 @@ Poniżej znajduje się typowa kolejność uzupełniania słowników przed rozpoc
 
 Dane podstawowe są zwykle dostępne w sekcji menu **„Dane podstawowe”**. Najczęściej zawiera ona:
 
-- **Partnerzy**
-- **Towary**
+- **Partnerzy**, **Firmy**, **Pozycje**, **Pracownicy** (zob. [Partnerzy → Pracownicy](partners.md#pracownicy))
+- **Towary** i **Atrybuty** (zob. [Towary → Atrybuty](items.md#atrybuty))
 - **Kategorie**
 - **Jednostki miary**
-- **Działy**
 - **Kraje**
-- **Waluty**
-- **Kursy walutowy**
+- **Waluty** i **Kursy walutowe**
 - **Umowy**
 - **Aktywności**
+- **Ustawienia**
+
+Działy nie są osobną pozycją menu — są utrzymywane na karcie partnera (zob. [Działy](departments.md)).
 
 ## Ogólne zasady pracy ze słownikami
 

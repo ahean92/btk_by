@@ -1,7 +1,7 @@
 MODULE Task;
 
 REQUIRE ProjectManagementSettings, Employee,
-        Doc, FileUtils, Comments, Activity,
+        Doc, FileUtils, Comments, Activity, DateUtils,
         TaskType, TaskStatus, TaskPriority, TaskTag,
         Assignee;
 
@@ -43,9 +43,13 @@ assignedTo (Task t, Employee e) = in(assignedTo(t), e) MATERIALIZED;
 start 'Start date' = DATA DATE (Task);
 @definePropertyValue(task, start, 'Start date');
 start(Task t) <- currentDate() WHEN SET(t IS Task);
+// localized relative duration of the start date ("{In} 12d" / "{ago}"), e.g. for kanban cards
+textStartDuration (Task t) = textDateDuration(start(t));
 
 deadline 'Deadline' = DATA DATE (Task);
 @definePropertyValue(task, deadline, 'Deadline');
+// localized relative duration of the deadline ("{In} 12d" / "{ago}"), e.g. for kanban cards
+textDeadlineDuration (Task t) = textDateDuration(deadline(t));
 
 progress 'Done, %' = DATA INTEGER (Task);
 @definePropertyValue(task, progress, 'Done, %');
@@ -55,9 +59,12 @@ description 'Description' = DATA RICHTEXT (Task) CHARWIDTH 20;
 status 'Status' = DATA TaskStatus (Task);
 nameStatus 'Status' (Task t) = name(status(t)) IN id;
 @definePropertyValue(task, status, 'Status', nameStatus);
+countTasks 'Tasks' (TaskStatus s) = GROUP SUM 1 IF status(Task t) = s;
 
 closed 'Closed' (Task t) = closed(status(t));
 opened 'Opened' (Task t) = t IS Task AND NOT closed(t);
+countOpenAssignedTask (Employee e) = GROUP SUM 1 IF assignedTo(Task t, e) AND opened(t);
+countOverdueTasks 'Overdue' () = GROUP SUM 1 IF opened(Task t) AND deadline(t) < currentDate();
 
 type 'Type' = DATA TaskType (Task);
 nameType 'Type' (Task t) = name(type(t)) IN id;
@@ -151,7 +158,7 @@ DESIGN task {
 
 showTask (LONG id) {
     FOR LONG(Task t AS Task) = id DO
-        SHOW task OBJECTS t = t DOCKED MANAGESESSION;
+        SHOW task OBJECTS t = t WINDOW MANAGESESSION;
 } @@api;
 
 FORM tasks '{Tasks}'

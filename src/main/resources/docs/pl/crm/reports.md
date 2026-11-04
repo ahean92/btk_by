@@ -13,7 +13,7 @@ Otwórz **„Raportowanie”**, następnie **„Raport leadów”**.
 Raport służy do analizy leadów wg czasu i atrybutów. Pomaga odpowiedzieć na pytania, takie jak:
 
 - ile leadów utworzono w okresie;
-- które typy i statusy występują najczęściej;
+- które statusy występują najczęściej;
 - jaki jest spodziewany przychód i jak rozkłada się wg sprzedawcy;
 - które leady miały się zamknąć w określonym okresie.
 
@@ -23,10 +23,11 @@ Raport jest budowany jako tabela przestawna: możesz zmieniać wymiary i grupowa
 
 Raport zwykle zawiera:
 
-- główne atrybuty: **ID**, **Nazwa**, **Status leadu**, **Typ leadu**, **[Partner](../masterdata/partners.md)**, **Sprzedawca**, **Kampania**, **Kanał**, **Źródło**, **Priorytet leadu**, **Tagi leadu**;
+- główne atrybuty: **ID**, **Nazwa**, **Status**, **[Klient](../masterdata/partners.md)**, **Sprzedawca**, **Priorytet**, **Tagi**;
+- marketing (jeśli moduł marketingu jest włączony): **Kampania**, **Kanał**, **Źródło**;
 - prognoza: **Prawdopodobieństwo**, **Spodziewane zamknięcie**, **Spodziewany przychód**;
 - kontakty: **Telefon**, **Email**;
-- opis i dodatkowe dane (adres, strona internetowa, osoba kontaktowa) — jeśli uzupełnione.
+- opis i dodatkowe dane (adres, strona internetowa, nazwa przedsiębiorstwa, osoba kontaktowa) — jeśli uzupełnione.
 
 ### Filtr „Interwał dat”
 
@@ -43,8 +44,8 @@ Rekomendacja: przy analizie miesięcznego lejka zawsze ustaw interwał dat, aby 
 
 Raport zawiera obliczane wymiary czasu:
 
-- wg daty leadu: minuta, godzina, data, dzień tygodnia, tydzień, miesiąc, rok;
-- wg spodziewanego zamknięcia: dzień tygodnia, tydzień, miesiąc, rok.
+- wg daty leadu: minuta, godzina, data, dzień tygodnia (nazwa i numer), tydzień, miesiąc (nazwa i numer), rok;
+- wg spodziewanego zamknięcia: dzień tygodnia (nazwa i numer), tydzień, miesiąc (nazwa i numer), rok.
 
 Pozwala to np. porównać spodziewane zamknięcia wg tygodni albo ocenić obciążenie pracy menedżerów wg miesięcy.
 

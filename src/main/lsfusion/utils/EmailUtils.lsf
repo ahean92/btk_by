@@ -41,9 +41,13 @@ META defineObjectNotifyComments(obj, capt, NS)
     notify = ABSTRACT VALUE BOOLEAN (###obj, Contact);
     notify (###obj t, Contact c) += TRUE IF GROUP SUM 1 IF (user(###obj##Comment tc) AS CustomUser) = c AND obj(tc) = t;
 
+    // Email everyone who should hear about the comment: contacts with the notify
+    // toggle on (comment author, task author/assignee, order representative, lead
+    // salesperson, …) OR anyone @-mentioned in it. Single event ⇒ each recipient is
+    // emailed once even when both conditions match; the comment author is excluded.
     WHEN SET(###obj##Comment tc IS ###obj##Comment) AND
-        notify(obj(tc), Contact c) AND
-        notify###obj(c) AND
+        ((notify(obj(tc), Contact c) AND notify###obj(c)) OR mentioned(tc, c AS CustomUser)) AND
+        email(c) AND
         defaultInboxAccount() AND
         NOT user(tc) = c DO {
         EMAIL
@@ -82,7 +86,7 @@ META defineObjectEmail (obj, capt, let)
 
     open###obj capt (Email e) {
         NEWSESSION {
-            SHOW obj OBJECTS let = obj##Email(e) DOCKED;
+            SHOW obj OBJECTS let = obj##Email(e) WINDOW;
         }
     }
 
@@ -122,7 +126,7 @@ META defineObjectEmailActions (obj, let, nameProp)
                 
                 fill(e, o);
 
-                SHOW obj OBJECTS let = o DOCKED;
+                SHOW obj OBJECTS let = o WINDOW;
             }
         }
     }
@@ -135,7 +139,7 @@ META defineObjectEmailActions (obj, let, nameProp)
 
                 create###obj##Files(o, e);
 
-                SHOW obj OBJECTS let = o DOCKED;
+                SHOW obj OBJECTS let = o WINDOW;
             }
         }
     }
@@ -150,7 +154,7 @@ META defineObjectEmailDashboard (obj, form)
         PROPERTIES(e) READONLY // nameAccount, idFolder, 
                                subject, fromAddress, dateTimeSent, dateTimeReceived,
                                message PANEL
-        PROPERTIES(e) ignored###obj ON CHANGE { NEWSESSION { INPUT b = ignored###obj(e) CHANGE; APPLY; } }
+        PROPERTIES(e) ignored###obj NEWSESSION APPLY
         PROPERTIES(e) open###obj GRID DISABLEIF NOT obj##Email(e)
         PROPERTIES(e) TOOLBAR
                       create###obj SHOWIF NOT obj##Email(e),

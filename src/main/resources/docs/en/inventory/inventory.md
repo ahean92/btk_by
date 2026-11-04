@@ -41,17 +41,19 @@ Below is a typical warehouse cycle.
    - run availability checks and reservation (if enabled);
    - perform picking (if [picking tasks](picking.md) are used) and complete the shipment.
 4. If needed, perform a **[transfer](transfers.md)** between locations (warehouses/zones).
-5. Use **[scrap](scrap.md)** to record discrepancies (damage, losses, defects, expiry, etc.).
-6. Periodically run **[adjustments](adjustments.md)** and close them.
+5. Use **[scrap](scrap.md)** to write goods off (damage, losses, defects, expiry, etc.).
+6. Periodically run **[adjustments](adjustments.md)** (stock counting — it records both surpluses and shortages) and close them.
 
 ## Navigation
 
-The “Inventory” section typically contains groups:
+![The Inventory section in the navigator](images/inventory-nav.webp)
 
-- **Operations** — documents (receipts, shipments, transfers, scrap, adjustments).
-- **Processes** — tasks and processing panels (e.g., picking).
-- **Reporting** — stock and movement reports.
-- **Settings** — parameters and directories.
+The "Inventory" section contains the following groups and forms:
+
+- **Operations** — documents and directories: **Receipts** ([receipts](receipts.md)), **Shipments** ([shipments and transfers](shipments.md)), **Adjustments** ([adjustments](adjustments.md)), **Scraps** ([scrap](scrap.md)), **Packages** and **Lots** ([lots and packages](lots-and-packages.md)).
+- **Processes** — mobile workflows: **Mobile picking** ([picking tasks](picking.md)) and **Mobile transfer** ([transfers](transfers.md#mobile-transfer)).
+- **Reporting** — **Inventory report**, **Inventory valuation**, **Product moves** and **Cost report** ([reports and ledgers](reports-and-ledgers.md), [item costing](costing.md)).
+- **Configuration** — **Settings** ([settings](settings.md)) with document types and cross-cutting parameters, **Locations** ([locations](locations.md)) and **Location of products**.
 
 ## Terms
 
@@ -69,7 +71,7 @@ A document that records goods going out of the [location](locations.md).
 
 #### [Transfer](transfers.md)
 
-A document that moves goods between [locations](locations.md).
+A document that moves goods between [locations](locations.md). Technically a transfer is a [shipment](shipments.md) whose **type** has the **"Is transfer"** flag set; "From location" and "To location" then both apply, and the system creates the corresponding cost ledger entries on both sides.
 
 #### [Scrap](scrap.md)
 

@@ -7,17 +7,17 @@ REQUIRE Invoice, InvoiceCurrency, InvoiceCorrection, InvoiceAdvance, InvoiceDebt
 NAMESPACE KSeF;
 
 // Link from Faktura to Invoice (adapter level)
-invoice 'Invoice' = DATA Invoice (Faktura) INDEXED; // Faktura -> Invoice
-numberInvoice 'Invoice' (Faktura f) = number(invoice(f)); 
+invoice 'Faktura sprzedaży' = DATA Invoice (Faktura) INDEXED; // Faktura -> Invoice
+numberInvoice 'Faktura sprzedaży' (Faktura f) = number(invoice(f));
 
 // Selector to keep compatibility: find Faktura by Invoice
 faktura (Invoice i) = GROUP LAST Faktura f ORDER f WHERE invoice(f) = i;
 
-fakturaReference 'KSeF reference' (Invoice i) = referenceNumber(faktura(i));
-fakturaStatusCode 'KSeF status code' (Invoice i) = statusCode(faktura(i));
-fakturaStatusDescription 'KSeF status' (Invoice i) = statusDescription(faktura(i));
-fakturaStatusDetails 'KSeF details' (Invoice i) = statusDetails(faktura(i));
-fakturaNumber 'KSeF number' (Invoice i) = number(faktura(i));
+fakturaReference 'Referencja KSeF' (Invoice i) = referenceNumber(faktura(i));
+fakturaStatusCode 'Kod statusu KSeF' (Invoice i) = statusCode(faktura(i));
+fakturaStatusDescription 'Status KSeF' (Invoice i) = statusDescription(faktura(i));
+fakturaStatusDetails 'Szczegóły KSeF' (Invoice i) = statusDetails(faktura(i));
+fakturaNumber 'Numer KSeF' (Invoice i) = number(faktura(i));
 
 toSendToKSeF (Invoice i) = (statusCode(faktura(i)) != 200 OR NOT faktura(i)) AND
     (status(i) = InvoiceStatus.ready OR status(i) = InvoiceStatus.done);
@@ -31,7 +31,12 @@ readonly(Invoice i) += WHEN faktura(i) AND NOT statusCode(faktura(i)) != 200 AND
 // Build Faktura from Invoice (adapter)
 fill ABSTRACT LIST (Faktura, Invoice);
 
-createFaktura 'Build Faktura' (Invoice i) {
+// Data zapłaty dla faktury rozliczeniowej (ROZ) w całości pokrytej zaliczkami:
+// data ostatniej otrzymanej zaliczki (płatność na fakturze zaliczkowej, fallback na datę zaliczki)
+dateLastAdvancePayment 'Data ostatniej zaliczki' (Invoice i) =
+    GROUP MAX (OVERRIDE dateLastIncomingPayment(Invoice ad), DATE(dateTime(ad))) IF advanced(i, ad) AND active(ad);
+
+createFaktura 'Zbuduj fakturę' (Invoice i) {
     NEW f = Faktura {
         invoice(f) <- i;
         podmiot1(f) <- company(i);
@@ -54,7 +59,7 @@ createFaktura 'Build Faktura' (Invoice i) {
         p2_Nazwa(f) <- fullName(customer(i));
         p2_KodKraju(f) <- OVERRIDE alpha2(country(customer(i))), r'PL';
         p2_AdresL1(f) <- address(customer(i));
-        p2_AdresL2(f) <- zipState(company(i));
+        p2_AdresL2(f) <- zipState(customer(i));
         p2_Email(f) <- email(customer(i));
         p2_Telefon(f) <- phone(customer(i));
         p2_NrKlienta(f) <- id(customer(i));
@@ -64,25 +69,28 @@ createFaktura 'Build Faktura' (Invoice i) {
         invoiceNumber(f) <- number(i);
         deliveryDate(f) <- OVERRIDE DATE(deliveryDate(i)), DATE(dueDateTime(i));
         
-        untaxedAmount1(f) <- correctionUntaxedAmount(tax(r'23%'), i);
-        untaxedAmount2(f) <- correctionUntaxedAmount(tax(r'8%'), i);
-        untaxedAmount3(f) <- correctionUntaxedAmount(tax(r'5%'), i);
-        untaxedAmount6(f) <- correctionUntaxedAmount(tax(r'0%'), i);
-        untaxedAmount7(f) <- correctionUntaxedAmount(tax(r'zw'), i);
-        taxAmount1(f) <- correctionTaxAmount(tax(r'23%'), i);
-        taxAmount2(f) <- correctionTaxAmount(tax(r'8%'), i);
-        taxAmount3(f) <- correctionTaxAmount(tax(r'5%'), i);
-        amount(f) <- correctionAmount(i);
+        untaxedAmount1(f) <- correctionUntaxedAmount(tax(r'23%'), i) (-) advancedUntaxedAmount(tax(r'23%'), i);
+        untaxedAmount2(f) <- correctionUntaxedAmount(tax(r'8%'), i) (-) advancedUntaxedAmount(tax(r'8%'), i);
+        untaxedAmount3(f) <- correctionUntaxedAmount(tax(r'5%'), i) (-) advancedUntaxedAmount(tax(r'5%'), i);
+        untaxedAmount6(f) <- correctionUntaxedAmount(tax(r'0%'), i) (-) advancedUntaxedAmount(tax(r'0%'), i);
+        untaxedAmount7(f) <- correctionUntaxedAmount(tax(r'zw'), i) (-) advancedUntaxedAmount(tax(r'zw'), i);
+        taxAmount1(f) <- correctionTaxAmount(tax(r'23%'), i) (-) advancedTaxAmount(tax(r'23%'), i);
+        taxAmount2(f) <- correctionTaxAmount(tax(r'8%'), i) (-) advancedTaxAmount(tax(r'8%'), i);
+        taxAmount3(f) <- correctionTaxAmount(tax(r'5%'), i) (-) advancedTaxAmount(tax(r'5%'), i);
+        amount(f) <- OVERRIDE correctionAmount(i) (-) advanced(i), 0;
         
-        IF dueDate(i) THEN
+        // Termin płatności podajemy tylko gdy pozostaje kwota do zapłaty;
+        // dla faktury w całości zapłaconej/rozliczonej zaliczkami go pomijamy (kwota do zapłaty = 0)
+        IF dueDate(i) AND left(i) (-) advanced(i) > 0 THEN
             NEW t = TerminPlatnosci {
                 faktura(t) <- f;
                 date(t) <- dueDate(i);
             }
 
-        IF NOT left(i) AND dateLastIncomingPayment(i) THEN {
+        IF NOT (left(i) (-) advanced(i) > 0) AND (dateLastIncomingPayment(i) OR correctionAmount(i) = advanced(i)) THEN {
             Zaplacono(f) <- 1;
-            DataZaplaty(f) <- dateLastIncomingPayment(i);
+            // dla ROZ bez płatności bezpośredniej bierzemy datę ostatniej zaliczki
+            DataZaplaty(f) <- OVERRIDE dateLastIncomingPayment(i), dateLastAdvancePayment(i);
         }
         FormaPlatnosci(f) <- IF companyAccount(i) IS CashAccount THEN 1 ELSE 6;
         
@@ -119,7 +127,7 @@ createFaktura 'Build Faktura' (Invoice i) {
                 value(si) <- note(i);
             }
         
-        FOR invoice(InvoiceLine l) = i OR invoice(l) = prevCorrection(i) DO NEW w = FaWiersz {
+        FOR invoice(InvoiceLine l) = i OR invoice(l) = prevInvoice(i) DO NEW w = FaWiersz {
             faktura(w) <- f;
             NrWierszaFa(w) <- index(l);
             description(w) <- OVERRIDE description(l), nameItem(l);
@@ -130,8 +138,9 @@ createFaktura 'Build Faktura' (Invoice i) {
             quantity(w) <- quantity(l);
             price(w) <- resultPrice(l);
             untaxedAmount(w) <- untaxedAmount(l);
+            vatAmount(w) <- taxAmount(l);
             taxes(w) <- OVERRIDE (ltrim(toChar(taxPercent(l), '99')) IF taxPercent(l) > 0), taxes(l);
-            correction(w) <- 1 IF invoice(l) = original(i);
+            correction(w) <- 1 IF invoice(l) = prevInvoice(i);
         }
         
         fill(f, i);

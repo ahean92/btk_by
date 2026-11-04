@@ -4,35 +4,48 @@ title: Settings and directories
 
 ## Where to find it
 
-Open **“Invoicing” → “Settings” → “Settings”**.
+Open **"Invoicing" → "Configuration" → "Settings"**.
 
-## What is typically configured
+![The "Settings" form of the Invoicing module](images/settings.webp)
 
-- document types ([bills](bills.md), [invoices](invoices.md), [payments](payments.md));
-- numbering rules;
-- bank accounts and cash registers;
-- payment terms (see [Debt and payment calendar](debt-and-calendar.md));
-- [taxes](taxes.md);
-- OpenAI-based bill file import settings (if used);
-- print templates (see [Reports and printing](reports-and-printing.md));
-- payments matching rules (if enabled).
+## The Settings form
 
-## Banks and accounts
+The **Settings** form itself (**Configuration → Settings**) holds:
 
-Directories typically include:
+- the **document-type** directories — **Bill types**, **Invoice types**, **Incoming payment types**, **Outgoing payment types** — each with its numerator, default partner, whether the **price includes taxes**, the payment/shipment behaviour, and (for returns) the **Return** flag and its linked **Return type** described in [Refunds and corrections](refunds-and-corrections.md);
+- the **Tax groups** directory;
+- the **Aging bucket** tab — the bounds of the [debt aging](debt-and-calendar.md) buckets (see below);
+- the **Skip converting debt to default currency** switch — when turned on, debt figures are kept in each document's own currency instead of being converted to the default currency.
 
-- banks;
-- bank accounts;
-- cash registers;
-- analytical accounts (if used for payments matching).
+Each document type can also define a **default currency** that is substituted into its documents. This is separate from the system-wide **default currency**, which is the one debt figures are converted to (unless the switch above is on).
+
+## Configuration directories (separate navigator items)
+
+Alongside the Settings form, the **Configuration** group contains these directories as their own menu items:
+
+- **[Taxes](taxes.md)** — taxes and tax rates;
+- **Payment terms** — see below;
+- **Banks** — the bank reference;
+- **Accounts** — a single directory holding both **bank accounts** and **cash accounts** (added via the respective buttons);
+- **Analytic accounts** (cash-flow items) — used to classify payments; allowed per payment type.
+
+Payment types additionally carry an **Internal payment** flag and an **allowed account types** setting (cash / bank, at least one required).
+
+[Cost allocation bases](bill-cost.md) for distributing service costs are set on the service items, and print templates are configured per document type (see [Reports and printing](reports-and-printing.md)).
 
 ## Payment terms
 
-Payment terms are used for:
+Payment terms carry a number of **Days**; assigned to a partner (separately for sales and purchase) and copied onto documents, they drive:
 
-- planned payment date calculation;
+- the **Pay before** date calculation;
 - [payment calendar](debt-and-calendar.md) generation;
 - overdue control.
+
+![Payment terms directory](images/payment-terms-list.webp)
+
+## Aging buckets
+
+The **Aging bucket** tab of the Settings form keeps the buckets of the [debt aging](debt-and-calendar.md) report. Each row is a bucket with its upper bound in days overdue (**Up to (days)**); the **Name** of the bucket (`1-30`, `31-60`, …) is derived from the bounds. A new database starts with the bounds 30, 60 and 90; add or delete rows to change the breakdown — debts older than the last bound go to the **> N** column of the report. The bounds must be positive and different.
 
 ## Bill file import
 

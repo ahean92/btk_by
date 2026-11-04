@@ -6,7 +6,7 @@ A [shipment](../inventory/shipments.md) records the transfer of goods to a custo
 
 ## Where to find
 
-Usually available in **“Sales” → “Operations”** (or in the “Inventory” section — depending on configuration).
+Shipments belong to the **Inventory** module — the shipments list is in **“Inventory” → “Operations” → “Shipments”**. A shipment linked to a sales order is created automatically from the order (see below).
 
 ## Relation to an order
 
@@ -34,12 +34,27 @@ Practical meaning: one order can be shipped in multiple shipments and in parts.
 
 ### Remaining to ship
 
-For an order line, the system calculates:
+For an order line, the system shows the columns:
 
-- **Shipped** — total across active shipments;
-- **Remaining to ship** = order line quantity (taking packaging/UoM conversion into account) − shipped.
+- **“Reserved”** — quantity reserved in active shipments;
+- **“Done”** — quantity in completed (not canceled) shipments.
+
+The remaining quantity to ship is calculated as the order line quantity (taking packaging/UoM conversion into account) minus the shipped quantity — it is a computed value, not a separate column.
 
 If more is shipped than ordered, the system will show an error.
+
+The orders list also shows aggregated **“Shipment status”** and **“Invoice status”** columns.
+
+### Shipment statuses and effect on inventory
+
+A shipment goes through the statuses **Draft → Waiting → Ready → Done** (and can be **Canceled**). The auto-created reserve shipment starts in **Waiting**.
+
+- In **Waiting** and **Ready** the shipment only **reserves** stock for the order — the goods are not yet written off.
+- Stock is written off the location only when the shipment is marked **Done**.
+
+The actions that advance a shipment are **“Mark as Todo”** (Draft → Waiting), **“Check availability”** (reserves stock; when all lines are fully reserved, the shipment automatically becomes **Ready**), and **“Mark as Done”**. The **“Ship partially”** and **“Unreserve”** actions are also available. The line columns **“On hand”**, **“Expected”**, and **“Available”** help check stock (see [shipments](../inventory/shipments.md)).
+
+![Shipment card](images/shipment-card.webp)
 
 ### “Reserve” shipment for an order (status `Waiting`)
 
@@ -69,7 +84,7 @@ When creating/updating the reserve shipment, the system:
 
 - adds shipment lines for those order lines that have remaining quantity to ship;
 - fills in the item (taking item transformation into account, if used);
-- stores the “initial demand” for the shipment line equal to the current remaining-to-ship value.
+- stores the **“Initial demand”** of the shipment line equal to the current remaining-to-ship value.
 
 If remaining quantity for an order line becomes zero (everything is shipped), the corresponding shipment line is removed.
 If there are no lines left in the reserve shipment, the shipment is deleted.
@@ -78,10 +93,12 @@ After forming lines, the system performs a preliminary availability check for th
 
 ### Multiple shipments for one order
 
-One order can be linked to multiple shipments. This happens, for example, for partial shipments or when splitting by location.
+One order can be linked to multiple shipments. This happens when a shipment is completed partially (the system creates a new **Waiting** shipment for the remainder) or when the **“Ship partially”** action is used.
 
 The order card shows a list of related shipments.
-The shipment card also shows a list of related orders.
+The footer of the shipment card shows a link to the related order(s) — the clickable order numbers.
+
+The **“Create Invoice”** bulk action on the shipments list creates one invoice from the completed quantities of the selected shipments.
 
 ### Restrictions when locking an order
 
@@ -92,13 +109,17 @@ The order type may have additional restrictions enabled:
 
 If restrictions are enabled, the system will not allow locking.
 
+### Cost and markup
+
+When a shipment is linked to a sales order, the order lines also expose the **“Cost”**, **“Markup”**, and **“Markup, %”** columns (the cost comes from the shipment write-off, or from the item’s planned cost). These values feed the sales [order report](reports.md).
+
 ## Creating a shipment based on an invoice
 
 The “shipment from invoice” scenario is described on a separate page: [Creating a shipment based on an invoice](../invoicing/shipments-from-invoice.md).
 
 ## Typical scenario
 
-1. Open a sales order.
-2. Create a shipment for the order.
+1. Confirm a sales order (the order type must have a **“Shipment type”** set) — the reserve shipment is created automatically.
+2. Open the shipment from the **“Shipments”** tab of the order.
 3. Check quantities in lines.
-4. Post/confirm the shipment according to your organization’s rules.
+4. Run **“Check availability”** — when all lines are fully reserved, the shipment becomes **Ready**; then run **“Mark as Done”** to write the goods off stock.

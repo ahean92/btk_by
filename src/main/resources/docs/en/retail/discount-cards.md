@@ -2,39 +2,41 @@
 title: Discount cards
 ---
 
-A discount card is used to provide a **[discount](../sales/discounts.md)** and/or identify the customer during the sale.
+A discount card identifies a customer at the [cash register](pos.md): when a card is entered on a receipt, the receipt’s customer is set from the card’s holder. A card does not carry a discount percentage of its own — any discount comes from the [discount rules](../sales/discounts.md) that apply to the linked customer.
 
 ## Where to find it
 
-Usually: **“Retail” → “Configuration” → “Discount cards”**.
+**“Retail” → “Configuration” → “Discount cards”**.
+
+![Discount cards list](images/discount-cards.webp)
 
 ## Main card data
 
-In a discount card, you typically specify:
+A discount card has:
 
-- **card number**;
-- **owner** (customer);
+- **ID** — the card identifier; it is the code scanned at the POS;
+- **owner** — the customer the card belongs to;
 - **issue date**;
-- **block date** (if the card is blocked).
+- **block date** — set when the card is blocked.
 
 ## Issuing a card
 
-1. Create a new discount card.
-2. Specify the owner.
-3. Check the card number (it is usually assigned automatically).
+A card can be created:
+
+- in the **“Discount cards”** list — create a card and specify its owner;
+- from a customer’s card — on the partner’s **“Discount cards”** tab, where a new card is created already linked to that customer.
+
+The card ID is assigned automatically by the numerator.
 
 ## Blocking a card
 
-You can block a card by specifying a block date.
+A card is blocked by setting a **block date**. The block date cannot be earlier than the issue date.
 
-Restriction: the block date cannot be earlier than the issue date.
+Blocking is effective from the block date: the card is rejected only on a receipt or invoice dated **on or after** that date. A future block date leaves the card usable until it arrives.
 
-## Using it on a [receipt](pos.md)
+A blocked card cannot be used: at the POS the system shows **“Discount card blocked”** and does not attach it to the receipt; on a sales invoice the card fails validation.
 
-How a discount card is used depends on your configuration:
+## Using a card
 
-- searching for a customer by number/card;
-- selecting a customer manually;
-- automatically applying a discount.
-
-If a blocked card is selected, the system may disallow its use.
+- **At the POS** — enter or scan the card ID in the barcode field. The card’s holder becomes the receipt customer (see [Cash register and POS](pos.md)).
+- **On a sales invoice** — the card is not selected directly on the standard [sales invoice](../invoicing/invoices.md) form; the card field is exposed at the POS. When a receipt (invoice) does carry a card, the system fills in the customer from the card and validates that the card matches the customer and is not blocked.

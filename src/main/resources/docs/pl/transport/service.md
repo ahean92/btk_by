@@ -14,7 +14,7 @@ Historia serwisów jest zwykle dostępna również na karcie pojazdu w odpowiedn
 
 ## Tworzenie rekordu serwisu
 
-1. Kliknij **Nowy**.
+1. Kliknij **„Add”**.
 2. Wypełnij główne pola:
    - data;
    - pojazd;
@@ -25,6 +25,8 @@ Historia serwisów jest zwykle dostępna również na karcie pojazdu w odpowiedn
    - **Kwota** i **Podatek** (jeśli są prowadzone osobno);
    - notatka i/lub opis (jeśli potrzeba).
 3. Zapisz rekord.
+
+Po wybraniu pojazdu **[Dostawca](../masterdata/partners.md)** i **Wskazanie drogomierza** są wstępnie wypełniane z ostatniego serwisu tego pojazdu (jeśli istnieje) — sprawdź je i w razie potrzeby popraw.
 
 ### Jak wypełniać koszt
 
@@ -45,7 +47,9 @@ Jeśli w organizacji prowadzone są dokumenty **[Faktura zakupu](../invoicing/bi
 
 Dostępne pola i zasady wypełniania zależą od konfiguracji i uprawnień.
 
-Rekomendacja praktyczna: jeśli serwis jest powiązany z **[Fakturą zakupu](../invoicing/bills.md)**, wypełnij datę oraz **[Dostawcę](../masterdata/partners.md)** tak, aby odpowiadały danym w **[Fakturze zakupu](../invoicing/bills.md)** — ułatwia to kontrolę i wyszukiwanie.
+Po powiązaniu serwisu z **[Fakturą zakupu](../invoicing/bills.md)** system przenosi do jeszcze niewypełnionych pól serwisu **Datę**, **[Dostawcę](../masterdata/partners.md)**, **Kwotę** i **Podatek** z faktury. W razie potrzeby wartości można skorygować ręcznie.
+
+Serwis pojazdu można też dodać bezpośrednio z karty **[Faktury zakupu](../invoicing/bills.md)**: dla typów dokumentów obsługujących pojazdy karta faktury pokazuje blok **„Serwisy pojazdów”**.
 
 ## Kontrola wskazania drogomierza
 
@@ -64,5 +68,7 @@ Aby szybko utworzyć podobny rekord (np. powtarzający się serwis):
 1. Otwórz kartę serwisu pojazdu.
 2. Użyj akcji **Kopiuj**.
 3. Zmień datę, **Wskazanie drogomierza** oraz **Kwotę/Podatek** według potrzeb.
+
+Do nowego rekordu przenoszone są pojazd, data, dostawca, typ, wskazanie drogomierza, kwota, notatka i opis. Ilość, cena i podatek nie są kopiowane — w razie potrzeby wypełnij je ponownie.
 
 Kopiowanie jest wygodne dla cyklicznych serwisów (np. sezonowej wymiany opon), aby nie wypełniać tych samych pól ręcznie.

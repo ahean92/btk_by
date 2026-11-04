@@ -6,9 +6,15 @@ title: Ustawienia i dane referencyjne
 
 Otwórz **„CRM”**, następnie **„Konfiguracja”**, następnie **„Ustawienia”**.
 
-Ta sekcja zawiera parametry i katalogi, które definiują, jak użytkownicy prowadzą leady: statusy, typy, priorytety, tagi oraz sposób oznaczania leadu jako porażka.
+Formularz **„Ustawienia”** jest podzielony na zakładki i zawiera parametry oraz katalogi, które definiują, jak użytkownicy prowadzą leady: statusy, typy, priorytety, tagi oraz sposób oznaczania leadu jako porażka.
+
+Grupa **„Konfiguracja”** zawiera również osobne pozycje dla danych referencyjnych marketingu — **„Kampanie”**, **„Kanały”** i **„Źródła”** (zobacz [Ustawienia marketingu](#ustawienia-marketingu) poniżej).
 
 ## Parametry
+
+### Licznik - Leady
+
+Parametr **„Licznik - Leady”** określa licznik, według którego leadom automatycznie nadawane jest **ID**.
 
 ### Typ zamówienia
 
@@ -21,6 +27,10 @@ Jeśli nie jest ustawiony, przycisk **„Utwórz Zamówienie”** nie jest pokaz
 Parametr **„Typ faktury”** określa, jaki typ jest wstępnie podstawiany przy tworzeniu [faktury](../sales/invoices.md) z leadu.
 
 Jeśli nie jest ustawiony, przycisk **„Utwórz fakturę”** nie jest pokazywany w karcie leadu.
+
+### E-mail leadów
+
+Parametr **„E-mail leadów”** określa wspólne konto poczty, którego wiadomości są przetwarzane na zakładce **„Email”** sekcji **„Leady”**. Zakładka jest widoczna, gdy ten parametr jest ustawiony lub gdy bieżący użytkownik ma skonfigurowane własne konto poczty (zobacz [Komunikacja: połączenia i e‑maile](communications.md)).
 
 ## Dane referencyjne
 
@@ -40,7 +50,7 @@ Rekomendacje:
 
 1. Utwórz co najmniej 3–5 statusów, aby lejek był czytelny.
 2. Dla statusów zamykających oznacz **„Zamknięta”**.
-3. Wybierz jeden status i oznacz go jako **„Porażka”** — będzie ustawiany przy zamykaniu leadu przez akcję „Porażka”.
+3. Wybierz jeden status i oznacz go jako **„Porażka”** — będzie ustawiany przy zamykaniu leadu przez akcję „Porażka”. Oznacz ten status również jako **„Zamknięta”**, inaczej po akcji „Porażka” lead pozostanie otwarty.
 4. Ustaw kolejność sortowania tak, aby kolumny na tablicy były od lewej do prawej zgodnie z procesem.
 
 ### Typy leadu
@@ -63,7 +73,7 @@ Priorytet zwykle ma:
 - **nazwę**;
 - **kolor**.
 
-Kolor może być pokazywany na liście i w karcie leadu.
+Kolor wyróżnia wiersze na liście leadów i karty na tablicy kanban.
 
 ### Tagi leadu
 
@@ -91,7 +101,7 @@ Rekomendacja: utwórz powody tak, aby dało się z nich wyciągać wnioski (np. 
 
 ## Ustawienia marketingu
 
-Aby analizować skąd przychodzą leady, możesz skonfigurować dane referencyjne marketingu.
+Aby analizować skąd przychodzą leady, możesz uzupełnić dane referencyjne marketingu. **Kampanie**, **Kanały** i **Źródła** to osobne pozycje w grupie **„Konfiguracja”** (obok **„Ustawienia”**), każda otwierana jako osobna lista.
 
 ### Kampanie
 

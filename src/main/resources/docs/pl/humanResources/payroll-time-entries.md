@@ -14,12 +14,14 @@ Jeśli wpis przepracowanego czasu został utworzony **bez projektu**, **nie ucze
 
 ## Jak obliczana jest kwota
 
-Dla każdego projektu wyliczany jest przychód:
+Kwota jest liczona **dla każdego wpisu przepracowanego czasu**: `godziny wpisu × „Wynagrodzenie za godzinę”` (stawka obowiązująca dla tego wpisu), z zaokrągleniem do 2 miejsc po przecinku.
 
-- **godziny** — łączna liczba godzin wg wpisów przepracowanego czasu pracownika za okres (dla danego projektu);
-- **kwota** — `hours × „Wynagrodzenie za godzinę”`.
+Następnie dla każdego projektu tworzona jest linia przychodu:
 
-Kwota przychodu jest zaokrąglana do 2 miejsc po przecinku.
+- **ilość** — łączna liczba godzin wg wpisów przepracowanego czasu pracownika za okres (dla danego projektu);
+- **suma** — suma kwot wyliczonych dla wpisów.
+
+Ponieważ stawka jest ustalana per wpis, wpisy tego samego projektu mogą mieć różne stawki (np. gdy stawka pracownika zmieniła się w trakcie okresu).
 
 ## Skąd pochodzi „Wynagrodzenie za godzinę”
 
@@ -29,12 +31,12 @@ Stawka **„Wynagrodzenie za godzinę”** może być ustawiana zależnie od mod
 - na przypisaniu pracownika do projektu;
 - na poziomie zespołu (jeśli używane).
 
-Dla konkretnego wpisu przepracowanego czasu stawka jest określana zgodnie z następującym priorytetem (używana jest pierwsza znaleziona wartość niezerowa):
+Dla konkretnego wpisu przepracowanego czasu bardziej szczegółowa stawka zastępuje bardziej ogólną. Od najbardziej szczegółowej do najbardziej ogólnej:
 
-1. **Stawka w przypisaniu do projektu** — jeśli dla pracownika ustawiono konkretną stawkę w przypisaniu do danego projektu.
-2. **Stawka zespołu** — jeśli pracownik jest przypisany do projektu jako część zespołu i dla tego członka zespołu ustawiono stawkę.
-3. **Historyczna stawka pracownika** — jeśli w tabeli historii wynagrodzeń pracownika istnieje wpis pasujący do daty przepracowanego czasu.
-4. **Podstawowa stawka pracownika** — ogólna wartość „Wynagrodzenie za godzinę” ustawiona w kartotece pracownika.
+1. **Stawka w przypisaniu do projektu** — stawka ustawiona dla pracownika w jego przypisaniu do projektu.
+2. **Stawka zespołu** — stawka ustawiona dla pracownika jako członka zespołu na projekcie.
+3. **Historyczna stawka pracownika** — stawka z historii wynagrodzeń pracownika pasująca do daty przepracowanego czasu.
+4. **Podstawowa stawka pracownika** — ogólna wartość „Wynagrodzenie za godzinę” w kartotece pracownika.
 
 ## Gdzie zweryfikować dane źródłowe
 

@@ -10,7 +10,7 @@ This section describes how to use **Work centers** and **Work orders** to plan a
 
 ### Managing work centers
 
-To manage work centers, go to **Manufacturing** → **Settings** → **Work centers**.
+To manage work centers, go to **Manufacturing** → **Configuration** → **Work centers**.
 
 For each work center, you can specify:
 - **Name** — a descriptive name (e.g., "Assembly Line A", "CNC Machine 1").
@@ -42,11 +42,16 @@ Work orders are typically created within the context of a **Manufacturing order*
    - **Start date** — the day the operation is scheduled to begin (defaults to the manufacturing order's scheduled date).
    - **Start time** — the specific time of day the operation should start.
    - **Duration** — the estimated time required for the operation (in hours).
-   - **Source operation** - a direct link to the Bill of Materials operation used to create the work order.
+
+Automatically generated work orders additionally keep an internal link to the source Bill of Materials operation, and the **Bill of Materials** column in the work orders list shows where the operation came from.
 
 ### Managing all work orders
 
-To see a global view of all production tasks, go to **Manufacturing** → **Operations** → **Work orders**. This list allows supervisors to:
+To see a global view of all production tasks, go to **Manufacturing** → **Operations** → **Work orders**.
+
+![Work orders list](images/work-orders-list.webp)
+
+This list allows supervisors to:
 - Track the progress of operations across different manufacturing orders.
 - Filter tasks by work center, start date, or item (from the manufacturing order).
 - Bulk update work orders using multi-selection: select multiple lines and use **Start** or **Mark as Done** actions.
@@ -64,6 +69,8 @@ Each work order follows a specific workflow to track its progress:
 - **Mark as Done**: Moves a work order from *In Progress* to *Done*.
 
 These actions are available on both the work order form and in the global work orders list.
+
+Note: if the produced item is lot-tracked, the work order card also shows (read-only) the [lots](lots-and-printing.md) to be produced by its manufacturing order.
 
 ### Filtering and Selection
 
@@ -86,7 +93,9 @@ The **Work orders** list includes enhanced filtering:
 The **Work center load** dashboard is a powerful tool for visual scheduling and capacity planning.
 
 ### Accessing the dashboard
-Go to **Manufacturing** → **Dashboards** → **Work center load**.
+Go to **Manufacturing** → **Processes** → **Work center load**.
+
+![Work center load dashboard](images/work-center-load.webp)
 
 ### Interface overview
 

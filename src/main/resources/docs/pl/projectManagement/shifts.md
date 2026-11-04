@@ -1,0 +1,80 @@
+---
+title: Zmiany
+---
+
+Funkcja **„Zmiany”** służy do planowania zmian roboczych pracowników: kto pracuje, w którym dniu, w jakim przedziale czasu i — opcjonalnie — w ramach którego projektu.
+
+## Gdzie to znaleźć
+
+Otwórz **„Projekty” → „Operacje” → „Zmiany”**.
+
+Ekran otwiera się na najbliższym tygodniu (przedział 7 dni, począwszy od bieżącej daty) i ma dwie zakładki:
+
+- **„Harmonogram”** — wizualna tablica tygodniowa do planowania zmian;
+- **lista** zmian — zwykła tabela rekordów.
+
+Do przechodzenia między tygodniami użyj przycisków **„Poprzedni tydzień”** / **„Następny tydzień”** albo pola przedziału dat. Obie zakładki pokazują zmiany wybranego okresu.
+
+## Karta zmiany
+
+Zmiana zawiera:
+
+- **Data** — dzień zmiany;
+- **Czas** — przedział czasu początek–koniec;
+- **Zmiana nocna** — oznacza zmianę przechodzącą przez północ (zobacz [Zmiany nocne](#zmiany-nocne));
+- **Przypisane do** — pracownik, który pracuje na zmianie;
+- **Projekt** — projekt, którego dotyczy zmiana (opcjonalnie);
+- **Notatka** i **Opis**;
+- załączone **pliki**.
+
+Aby otworzyć zmianę, kliknij ją dwukrotnie na liście (lub użyj **„Edytuj”**).
+
+## Zmiany nocne
+
+**Zmiana nocna** trwa przez północ — na przykład od `22:00` do `06:00` następnego dnia.
+
+Ponieważ pole czasu nie pozwala, aby czas zakończenia był wcześniejszy niż czas rozpoczęcia, zmianę nocną wprowadza się tak:
+
+1. Wprowadź przedział **Czas** normalnie, z mniejszą wartością na początku — np. `06:00–22:00`.
+2. Zaznacz pole **„Zmiana nocna”** na karcie zmiany.
+
+Na tablicy **„Harmonogram”** zmiana jest wtedy wyświetlana **odwrotnie**, ze znacznikiem następnego dnia — `22:00-06:00 (+1)`. Lista zmian i karta zmiany pokazują przedział tak, jak został wprowadzony, a zmianę nocną oznacza pole **„Zmiana nocna”**.
+
+**Szablon zmiany** również można oznaczyć jako nocny (na zakładce **„Szablony zmian”** w **„Ustawieniach”**). Zmiana utworzona z takiego szablonu dziedziczy oznaczenie zmiany nocnej, więc zmiany nocne można planować przeciąganiem na **„Harmonogramie”** jak zwykle.
+
+## Widok „Harmonogram”
+
+Zakładka **„Harmonogram”** pokazuje wybrany tydzień jako tablicę: wiersze to pracownicy, kolumny to dni. W wierszach wyświetlani są pracownicy, którzy mają zmiany; zmiany bez pracownika trafiają do wiersza **„Nieprzypisane”**. Nad tablicą wyświetlany jest rząd **szablonów zmian**.
+
+Na tablicy można:
+
+- **utworzyć zmianę** — przeciągnij **szablon zmiany** z rzędu szablonów do komórki wybranego pracownika i dnia; zmiana zostaje utworzona z przedziałem czasu z szablonu;
+- **przenieść zmianę** — przeciągnij istniejącą zmianę do innej komórki, aby zmienić jej pracownika i/lub datę;
+- **edytować lub usunąć zmianę** — kliknij zmianę, aby ją otworzyć, a następnie zmień ją lub usuń.
+
+Zakładka **„Harmonogram”** jest wygodna do wizualnego planowania tygodnia, a zakładka **listy** — do płaskiego widoku z filtrami.
+
+## Szablony zmian
+
+**Szablon zmiany** to wcześniej zdefiniowany przedział czasu (na przykład zmiana poranna `09:00–18:00`). Szablony przyspieszają planowanie w **„Harmonogramie”**: przeciągasz szablon do komórki, a nowa zmiana przyjmuje przedział czasu z szablonu.
+
+Szablony zmian konfiguruje się w formularzu **„Ustawienia”**, na zakładce **„Szablony zmian”** — zobacz [Ustawienia](settings.md#szablony-zmian).
+
+## Zmiany a projekty
+
+Zmianę można powiązać z **[projektem](projects.md)**. Wtedy:
+
+- zmiana pojawia się w bloku **„Zmiany”** na karcie projektu;
+- lista projektów pokazuje liczbę zmian w projekcie.
+
+Na liście zmian można też filtrować zmiany według projektu.
+
+## Częste sytuacje
+
+#### Zmiana nie jest widoczna na liście
+
+Ekran pokazuje tylko zmiany wybranego tygodnia. Sprawdź przedział dat u góry ekranu lub użyj **„Poprzedni tydzień”** / **„Następny tydzień”**.
+
+#### Brak szablonów zmian do wyboru w „Harmonogramie”
+
+Szablony pochodzą z zakładki **„Szablony zmian”** formularza **„Ustawienia”**. Jeśli lista jest pusta, dodaj szablony używane w Twojej organizacji — zobacz [Ustawienia](settings.md#szablony-zmian).

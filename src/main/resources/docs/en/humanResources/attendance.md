@@ -9,14 +9,21 @@ The **Attendance** feature is used to record employee working time marks:
 
 Each mark creates/updates an **Attendance** record. The system can also store **geolocation** (latitude/longitude) and **photos** depending on the used check-in method.
 
+## Where to find it
+
+- The **Attendances** list is in **“Human Resources” → “Operations” → “Attendances”**.
+- The **mobile attendance** and the **attendance kiosk** are in **“Human Resources” → “Processes”**.
+
+![Attendances list](images/attendances-list.webp)
+
 ## What is recorded
 
 For each attendance record, the system stores:
 
-- **Employee** — automatically set to the currently logged-in employee when an attendance record is created.
+- **Employee** — for mobile or manual creation it is automatically set to the currently logged-in employee; a kiosk record is assigned to the employee identified by the scanned badge.
 - **Check In datetime** — required.
 - **Check Out datetime** — optional until the employee checks out.
-- **Worked hours** — calculated as the difference between check-in and check-out.
+- **Hours worked** — the time between check-in and check-out. Back-office forms show it as a decimal number of hours; the mobile list shows it in `HH:MM` format.
 - **Check In / Check Out geolocation** — latitude and longitude values (if available).
 - **Check In / Check Out photos** — stored when using the kiosk flow (if the device/camera is configured).
 
@@ -38,7 +45,7 @@ The form shows:
 - large buttons for **Start** (check-in) / **Stop** (check-out);
 - current state (opened/closed) based on the last record;
 - a list of recent attendance records for the current user (sorted by newest check-in);
-- totals for **This week** and **This month**.
+- **Week** and **Month** totals in the **“Total”** block. The totals include only **closed** records (the currently opened record is counted after check-out), and a record counts toward the week/month of its **check-in** date.
 
 ### Geolocation requirement (mobile)
 
@@ -97,11 +104,11 @@ The kiosk uses a confirmation dialog showing the employee and a large message:
 - **Check In** (green)
 - **Check Out** (red)
 
-If the employee is not recognized, the message **“Employee not found”** is shown.
+The dialog confirms automatically after a few seconds, or the employee can press **Cancel**. If the employee is not recognized, the message **“Employee not found”** is shown.
 
 ### Kiosk specifics
 
-- The kiosk prevents repeated processing of the same scanned value within a short time window (to avoid double-scans).
+- The kiosk ignores a repeat scan of the same value within about 10 seconds (to avoid double-scans).
 - The kiosk can display a list of employees who are currently **checked in nearby** (based on comparing the kiosk current coordinates with stored check-in coordinates).
 
 ## Settings and permissions
@@ -121,8 +128,8 @@ There are forms for working with attendance records:
 
 - **Attendance** — view a single attendance record (including geolocation fields and photos if present).
 - **Attendances** — list of attendance records with filters:
-  - **Opened** (no check-out yet)
-  - **Closed** (already checked out)
+  - **Opened** (no check-out yet) — enabled by default
+  - **Closed** (already checked out) — select it to see completed records
 
 Depending on permissions, users can create/edit/delete records manually in the back office (for corrections).
 
@@ -149,7 +156,7 @@ Worked hours are calculated from **check-in** and **check-out** times.
 Check:
 
 - that the employee has checked out (otherwise the record is “opened”);
-- that the device time is correct;
+- the stored check-in/check-out timestamps (they are set by the server at the moment of the mark, not taken from the device clock);
 - if corrections were made manually, verify the check-in/check-out datetimes.
 
 ### The employee is not in the kiosk list

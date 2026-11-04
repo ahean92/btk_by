@@ -48,8 +48,10 @@ Co dzieje się z dopasowaniem:
 
 Ważne o statusach:
 
-- akcja **„Rejestruj płatność”** jest zwykle dostępna tylko wtedy, gdy faktura ma status **„Do zapłaty”**;
-- utworzona płatność przychodząca jest zwykle tworzona w statusie **„Wykonano”** (tzn. rejestruje fakt wpływu środków).
+- akcja **„Rejestruj płatność”** jest dostępna tylko wtedy, gdy faktura ma status **„Do zapłaty”**;
+- utworzona płatność przychodząca jest tworzona w statusie **„Wykonano”** (tzn. rejestruje fakt wpływu środków).
+
+Płatność przychodząca utworzona ręcznie zaczyna w statusie **„Projekt”**; użyj akcji **„Oznacz jako Wykonano”**, aby ją zaksięgować. Płatności przychodzące nie mają osobnego etapu „Do zapłaty” — przebieg to **„Projekt” → „Wykonano” → „Anulowano”**.
 
 ## Pola główne
 
@@ -63,8 +65,12 @@ Dokładny zestaw pól zależy od konfiguracji, ale typowa płatność przychodz�
 - **Konto/kasa partnera** (jeśli używane) — dane [partnera](../masterdata/partners.md).
 - **Firma** — organizacja przyjmująca środki.
 - **Konto/kasa firmy** — gdzie przyjęto środki (konto bankowe lub kasa).
+- **Waluta** — wynika z konta firmy lub typu płatności.
+- **Konto analityczne** (pozycja przepływów pieniężnych) — konto analityczne dozwolone dla wybranego typu płatności.
 - **Notatka** — dowolny komentarz.
-- **Podstawa** — pole tekstowe na cel/opis płatności.
+- **Podstawa** — krótki opis (np. numer dokumentu płatnika). Jeśli zawiera numer dokumentu, system **automatycznie dopasowuje** płatność do tego długu (zobacz niżej).
+
+Wbudowane typy płatności obejmują typowe przypadki — płatność klienta (bank/kasa), zwrot od dostawcy (bank/kasa), przelew wewnętrzny oraz saldo początkowe. Typ oznaczony jako **Płatność wewnętrzna** wymaga, aby partnerem była jedna z Twoich własnych firm.
 
 ### Uwagi dotyczące wyboru kont/kas
 
@@ -79,19 +85,23 @@ Jeśli wybierzesz konto/kasę niezgodną z typem płatności, system może nie p
 
 Aby płatność przychodząca zmniejszała [dług](debt-and-calendar.md) dla konkretnych dokumentów, musisz **dopasować** ją do tych dokumentów.
 
-W karcie płatności zwykle jest sekcja **„Dopasowanie płatności”** z:
+W karcie płatności jest sekcja **„Dopasowanie płatności”** z:
 
 - **Rozliczone** — kwoty już powiązane z dokumentami;
-- **Dostępne** — dokumenty, które można opłacić tą płatnością;
+- **Dostępne** — dokumenty, które można opłacić tą płatnością (dla płatności przychodzącej są to [faktury](invoices.md) klientów);
 - akcją **Rozlicz** — powiązanie kwoty z wybranym dokumentem.
+
+Dopasowanie jest dozwolone tylko między dokumentami **tego samego partnera i firmy**.
 
 ### Jak rozliczyć płatność
 
 1. Otwórz płatność przychodzącą.
 2. Przejdź do **„Dopasowanie płatności”**.
 3. Na liście **„Dostępne”** wybierz dokument, który chcesz opłacić.
-4. Kliknij **„Rozlicz”**.
+4. Kliknij **„Rozlicz”** (albo po prostu dwuklik na wierszu).
 5. Sprawdź, czy w **„Rozliczone”** pojawiła się pozycja z rozliczoną kwotą.
+
+Wskazówka: jeśli w polu **Podstawa** wpiszesz numer faktury, płatność dopasuje się do tej faktury automatycznie — bez ręcznego kroku.
 
 ### Płatność częściowa
 
@@ -105,22 +115,23 @@ Jeśli kwota płatności jest mniejsza niż kwota dokumentu:
 
 Jeśli [partner](../masterdata/partners.md) opłacił jednocześnie kilka dokumentów, dopasuj płatność do kilku pozycji — po jednej na każdy dokument.
 
-### Nadpłata i zaliczka
+### Nadpłata
 
-Jeśli kwota płatności jest większa niż kwota rozliczona:
+Jeśli kwota płatności jest większa niż kwota rozliczona, pozostała część pozostaje **nierozliczona** i może zostać zastosowana do późniejszych dokumentów tego samego [partnera](../masterdata/partners.md). (Przedpłaty, które muszą zostać rozliczone z konkretną przyszłą sprzedażą, obsługuje się za pomocą **faktur zaliczkowych**, a nie samej płatności — zobacz [Faktury](invoices.md).)
 
-- część kwoty pozostaje **nierozliczona** (do czasu dalszego rozliczenia),
-- albo jest traktowana jako **zaliczka** (jeśli używany jest odpowiedni mechanizm/ustawienia).
+## Powiązanie z płatnością wychodzącą
 
-Wskazówka praktyczna: jeśli spodziewasz się przyszłych dokumentów od tego [partnera](../masterdata/partners.md), wygodnie jest utrzymać nadpłatę jako zaliczkę, a następnie rozliczyć zaliczkę później.
+Jeśli typ płatności ma powiązany typ wychodzący, zaksięgowana płatność przychodząca pokazuje akcję **„Utwórz płatność wychodzącą”** (lub tworzy ją automatycznie, gdy typ ma ustawione **Automatycznie utwórz płatność wychodzącą**). Obsługuje to przelewy wewnętrzne między Twoimi własnymi kontami — przychodzący „wpływ przelewu” w parze z wychodzącym „wypływem przelewu”.
 
 ## Wyszukiwanie płatności „nierozliczonych”
 
-Lista płatności przychodzących może mieć filtr **„Nierozliczone”** — pomaga szybko znaleźć płatności, które nie są jeszcze powiązane z dokumentami i dlatego nie zmniejszają długu.
+Lista płatności przychodzących ma filtr **„Nierozliczone”** — pomaga szybko znaleźć płatności, które nie są jeszcze powiązane z dokumentami i dlatego nie zamykają kwoty pozostałej żadnego konkretnego dokumentu. (Taka płatność i tak wpływa na ogólne saldo partnera.)
 
 ## Drukowanie
 
-Jeśli w Twojej konfiguracji są podłączone wydruki, płatność przychodzącą można drukować.
+Predefiniowany dokument wydruku nosi tytuł **„Płatność przychodząca”**; drukowanie korzysta z **Szablonów płatności przychodzącej** skonfigurowanych dla typu płatności.
+
+Płatności od klientów są drukowane według standardowego szablonu **Payment receipt**: otrzymana kwota i dokumenty, z którymi płatność została dopasowana.
 
 Zobacz: [Raporty i drukowanie](reports-and-printing.md).
 

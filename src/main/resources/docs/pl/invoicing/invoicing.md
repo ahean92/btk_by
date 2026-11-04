@@ -23,6 +23,7 @@ Jeśli w Twojej konfiguracji brakuje części dokumentów lub pozycji menu, jest
 Sekcje:
 
 - [Faktury zakupu](bills.md)
+- [Mobilne faktury zakupu](mobile-bills.md)
 - [Faktury](invoices.md)
 - [Wydania z faktury (jeśli używane jest Magazynowanie)](shipments-from-invoice.md)
 - [Zwroty i korekty](refunds-and-corrections.md)
@@ -45,7 +46,7 @@ Sekcje:
    - wybierz [partnera](../masterdata/partners.md);
    - wskaż [kontrakt](../masterdata/contracts.md) (jeśli używany);
    - uzupełnij linie ([towary](../masterdata/items.md)/usługi, ilość, cena, [podatek](taxes.md)).
-3. Ustaw fakturę w status **„Do zapłaty”** (jeśli jest to wymagane przez reguły Twojej konfiguracji).
+3. Ustaw fakturę w status **„Do zapłaty”** (akcja **„Oznacz jako Do zrobienia”** na karcie faktury; wymagane przez przepływ).
 4. Po otrzymaniu płatności zarejestruj **[płatność przychodzącą](incoming-payments.md)** i dopasuj ją do faktury.
 5. Kontroluj [dług](debt-and-calendar.md) w raportach i w [kalendarzu płatności](debt-and-calendar.md).
 
@@ -79,12 +80,12 @@ Wskazówka praktyczna:
 
 ## Nawigacja
 
-Sekcja „Fakturowanie” zwykle zawiera grupy:
+Sekcja „Fakturowanie” zawiera grupy:
 
-- **Operacje** — faktury zakupu, faktury, płatności i dokumenty korekty.
-- **Procesy** — panele przetwarzania i listy (jeśli włączone).
-- **Raportowanie** — raporty długu/płatności/podatków.
-- **Ustawienia** — parametry i katalogi.
+- **Operacje** — [faktury zakupu](bills.md), [faktury](invoices.md), [płatności przychodzące](incoming-payments.md), [płatności wychodzące](outgoing-payments.md) oraz deklaracje celne.
+- **Procesy** — [mobilna faktura zakupu](mobile-bills.md).
+- **Raportowanie** — [kalendarz płatności](debt-and-calendar.md), [wiekowanie zadłużenia](debt-and-calendar.md), [uzgodnienie sald](debt-and-calendar.md), Płatności, Raport faktur zakupu, Raport faktur.
+- **Konfiguracja** — formularz **„Ustawienia”**, [podatki](taxes.md), Warunki płatności, Banki, Konta (bankowe + kasowe), Konta analityczne.
 
 ## Terminy
 
@@ -106,16 +107,27 @@ Wypłata środków (płatność do dostawcy, zwrot, inne wypłaty).
 
 #### [Dług](debt-and-calendar.md)
 
-Różnica pomiędzy kwotami dokumentów a kwotami płatności dopasowanych do tych dokumentów.
+Saldo rozrachunków z partnerem lub kontraktem — suma ze znakiem jego aktywnych dokumentów i płatności. Dla pojedynczego dokumentu powiązanym wskaźnikiem jest jego kwota pozostała (**„Pozostało”**) = kwota minus dopasowane płatności.
+
+#### [Korekta](refunds-and-corrections.md)
+
+Osobny dokument, który koryguje lub odwraca wcześniej zatwierdzoną fakturę zakupu lub fakturę. Korekty faktur zakupu obsługują dwa tryby — **zastąpienie** i **odwrócenie (storno)**; korekty faktur obsługują tylko zastąpienie.
+
+#### [Nota uznaniowa / Zwrot](refunds-and-corrections.md)
+
+Dokumenty do rejestrowania zwrotów:
+
+- **nota uznaniowa** to [faktura zakupu](bills.md) specjalnego typu (na typie ustawiona flaga **„Zwrot”**), która odwraca [fakturę](invoices.md) sprzedaży po stronie dostawcy;
+- **zwrot** to [faktura](invoices.md) specjalnego typu (na typie ustawiona flaga **„Zwrot”**), która odwraca [fakturę zakupu](bills.md) po stronie nabywcy.
 
 ## Statusy i edycja (ogólna zasada)
 
 Wiele dokumentów w „Fakturowaniu” ma typowy cykl życia:
 
-- **Projekt** — dokument można swobodnie edytować;
-- **Do zapłaty** (lub **Gotowe**, w zależności od dokumentu) — dokument jest potwierdzony do dalszych działań (drukowanie, tworzenie dokumentów powiązanych, dopasowanie płatności);
-- **Wykonano** — dokument jest zakończony (często oznacza zamknięcie operacji);
-- **Anulowan** — dokument jest wyłączony z rozliczeń/procesów.
+- **„Projekt”** — dokument można swobodnie edytować;
+- **„Do zapłaty”** — dokument jest potwierdzony do dalszych działań (drukowanie, tworzenie dokumentów powiązanych, dopasowanie płatności);
+- **„Zapłacono”** — dokument jest w pełni opłacony (na karcie faktury/faktury zakupu akcja przenosząca dokument do tego stanu nazywa się **„Oznacz jako Zapłacone”**); odpowiedni końcowy status na samych płatnościach to **„Wykonano”**;
+- **„Anulowano”** — dokument jest wyłączony z rozliczeń/procesów.
 
 Dokładne zachowanie zależy od konfiguracji. Zasadniczo im „wyższy” status, tym więcej ograniczeń w zmianie pól i linii.
 

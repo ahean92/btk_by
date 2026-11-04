@@ -1,14 +1,50 @@
 MODULE Comments;
 
-REQUIRE SystemEvents, DateUtils;
+REQUIRE SystemEvents, DateUtils, MasterDataSettings;
 
 NAMESPACE Utils;
 
 onWebClientInit() + {
-    onWebClientInit('comments.js') <- 1;
-    onWebClientInit('comments.css') <- 1;
+    // quill-mention (vendored under web/utils) powers the @mention editor; its UMD build
+    // self-registers onto lsFusion's bundled Quill at load. comments.js loads after it.
+    onWebClientInit('quill-mention.css') <- 1;
+    onWebClientInit('quill-mention.js') <- 1;
+    onWebClientInit('comments.js') <- 2;
+    onWebClientInit('comments.css') <- 2;
 }
 inputComment '' = DATA LOCAL RICHTEXT ();
+
+// Comment moderation: by default a user may edit / delete only their own comments; this flag
+// (implemented and exposed on the employee card in Employee, like avatar) lifts the restriction.
+// Declared here on User — not in Employee — because the meta is expanded in modules
+// (Partner, Item, ...) that cannot REQUIRE Employee.
+moderateComments 'Manage all comments' = ABSTRACT BOOLEAN (User);
+// Editing window for the author, in minutes (empty — no limit). Does not apply to moderators.
+editPeriodComment 'Comment editing period (min)' = DATA INTEGER () PREREAD;
+
+EXTEND FORM MasterData.options
+    PROPERTIES editPeriodComment()
+;
+
+DESIGN MasterData.options {
+    commons {
+        MOVE PROPERTY(editPeriodComment());
+    }
+}
+
+avatar = ABSTRACT IMAGEFILE (User);
+avatarBase64 (User u) = ('data:image/png;base64,' + encodeBase64Unchunked(avatar(u)));
+
+// UI text for the comment components. Plain English here is localized by lsFusion reverse-translation
+// (server-side); the strings reach the JS via OPTIONS (read-only list) and the editor's textData JSON,
+// so comments.js no longer hardcodes user-facing English.
+commentsI18n () = JSON FROM
+    noComments = 'No comments yet',
+    editLabel = 'Edit',
+    deleteLabel = 'Delete',
+    editedLabel = 'Edited',
+    placeholder = 'Add a comment…  (type @ to mention)',
+    loadError = 'Comment editor failed to load';
 
 META defineObjectComments (obj, let, container)
     CLASS ###obj##Comment 'Comment';
@@ -24,39 +60,91 @@ META defineObjectComments (obj, let, container)
     
     user = DATA User (###obj##Comment);
     nameUser 'User' (###obj##Comment f) = name(user(f));
+    avatarBase64User (###obj##Comment f) = avatarBase64(user(f));
     user(###obj##Comment f) <- currentUser() WHEN SET(f IS ###obj##Comment);
     
     text 'Text' = DATA RICHTEXT (###obj##Comment);
-    
+
+    // "Edited" mark: stamped whenever the text of an existing comment changes. A freshly created
+    // comment gets its text in the same session, so PREV(text(c)) is still NULL and no mark is set.
+    editDateTime 'Edited' = DATA DATETIME (###obj##Comment);
+    editUser = DATA User (###obj##Comment);
+    nameEditUser 'Edited by' (###obj##Comment c) = name(editUser(c));
+    textTimeDurationEdit (###obj##Comment c) = textTimeDuration(editDateTime(c));
+
+    WHEN CHANGED(text(###obj##Comment c)) AND PREV(text(c)) DO {
+        editDateTime(c) <- currentDateTime();
+        editUser(c) <- currentUser();
+    }
+
+    // Who may edit / delete the comment: a moderator, or the author within the editing window
+    // (no window configured — no time limit).
+    editable (###obj##Comment c) = c IS ###obj##Comment AND (moderateComments(currentUser()) OR
+        (user(c) = currentUser() AND NOT secondsTimeDuration(dateTime(c)) > editPeriodComment() * 60));
+
+    // Server-side backstop: the JS hides the buttons and the actions below re-check, but text can
+    // still be changed through the API — reject a foreign / expired edit at apply time.
+    // The explicit IS guard keeps the constraint out of DELETE's way: deleting a comment also
+    // CHANGEs its text (to NULL), while editable() of a deleted object is NULL too.
+    CONSTRAINT CHANGED(text(###obj##Comment c)) AND c IS ###obj##Comment AND NOT editable(c)
+        MESSAGE 'You can only edit your own comments';
+
     header = ABSTRACT VALUE HTMLTEXT (###obj##Comment);
     footer = ABSTRACT VALUE HTMLTEXT (###obj##Comment);
     html (###obj##Comment c) = CONCAT '', header(c), text(c), footer(c);
-    
+
+    // Quill + @mention editor data for the edit dialog: the comment text plus the list
+    // of users that can be @-mentioned (just the name; the JS uses it as both the
+    // displayed value and the chip id).
+    textData '' (###obj##Comment c) = JSON FROM text = text(c),
+        users = (JSON FROM value = name(CustomUser u) WHERE name(u)),
+        i18n = commentsI18n();
+    changeText (###obj##Comment c) {
+        INPUT newText = TEXT DO
+            text(c) <- newText;
+    }
+
+    // TRUE for every user (e.g. employee) @-mentioned in the comment text.
+    mentioned 'Mentioned' (###obj##Comment c, User u) = TRUE IF isSubstring(STRING(text(c)), 'data-id="' + name(u) + '"');
+
     FORM edit###obj##Comment 'Comment'
         OBJECTS c = ###obj##Comment PANEL
-        PROPERTIES(c) '' = text
+        PROPERTIES(c) textData CUSTOM 'commentEditor' ON CHANGE changeText(c)
     ;
-    
+
     DESIGN edit###obj##Comment {
-        size = (640, 480);
+        size = (800, 600);
         OBJECTS {
-            MOVE PROPERTY(text(c)) { fill = 1; }
+            MOVE PROPERTY(textData(c)) { fill = 1; }
         }
     }
     
+    // Guarded delete: only the author / a moderator, and with a confirmation (a stray click on the
+    // trash icon used to remove the comment silently).
+    deleteComment (###obj##Comment c) {
+        IF NOT editable(c) THEN RETURN;
+        ASK 'Delete this comment?' DO
+            DELETE c;
+    }
+
     EXTEND FORM obj
-        OBJECTS cmt = ###obj##Comment CUSTOM 'comments'
+        OBJECTS cmt = ###obj##Comment CUSTOM 'comments' OPTIONS JSON FROM i18n = commentsI18n()
         PROPERTIES id = VALUE(cmt)
-        PROPERTIES(cmt) nameUser, textTimeDuration, dateTime, text = html
-        PROPERTIES(cmt) edit ON CHANGE {
-            SHOW edit###obj##Comment OBJECTS c = cmt;
+        PROPERTIES(cmt) nameUser, avatarBase64User, textTimeDuration, dateTime, text = html,
+                        editable, edited = textTimeDurationEdit, nameEditUser
+        // GRID: the actions are columns of the custom view, so comments.js runs them with changeProperty('edit' / 'delete', row);
+        // a PANEL action is not a column of the view, and the form resolves it only by its group-qualified name ('cmt.edit')
+        PROPERTIES(cmt) GRID edit ON CHANGE {
+            IF editable(cmt) THEN
+                SHOW edit###obj##Comment OBJECTS c = cmt;
         },
-            delete = DELETE
+            delete = deleteComment
         ORDERS id DESC
         FILTERS obj(cmt) = let
     ;
     
-    newComment 'Add' (###obj t) {
+    // Auto-post the typed draft (used on the parent form's APPLY).
+    postComment (###obj t) {
         IF inputComment() THEN
             NEW nc = ###obj##Comment {
                 obj(nc) <- t;
@@ -64,11 +152,26 @@ META defineObjectComments (obj, let, container)
                 inputComment() <- NULL;
             }
     }
-    
+
+    // The "Add" button: post the typed draft, or — when the input is empty — open
+    // the @mention editor dialog (the same one used for editing) to compose a new
+    // comment. The comment object is created up front but DELETEd if the dialog is
+    // closed without OK, so nothing is kept — all in the current session, with no
+    // NEWSESSION and no APPLY.
+    newComment 'Add' (###obj t) {
+        IF inputComment() THEN
+            postComment(t);
+        ELSE
+            NEW nc = ###obj##Comment {
+                obj(nc) <- t;
+                DIALOG edit###obj##Comment OBJECTS c = nc DO { } ELSE { DELETE nc; }
+            }
+    }
+
     EXTEND FORM obj
         PROPERTIES inputComment(), newComment(let)
-        
-        EVENTS ON APPLY { newComment(let); }
+
+        EVENTS ON APPLY { postComment(let); }
     ;
     
     DESIGN obj {
@@ -104,7 +207,9 @@ META defineObjectCommentsHistory(obj)
     changes (###obj##Comment tc) = HTMLTEXT('<ul style="color:#959595">' + (GROUP CONCAT ('<li>' + type(###obj##History th) + ' : ' + description(th) + '</li>') IF comment(th) = tc, '' ORDER th) + '</ul>');
     header (###obj##Comment tc) += changes(tc);
 
-    WHEN SET(###obj##Comment tc IS ###obj##Comment) AND SET(###obj##History th IS ###obj##History) DO
+    // only the comment of the same object: a session changing several objects at once (a bulk move,
+    // an import) must not attach the changes of one object to the comment of another
+    WHEN SET(###obj##Comment tc IS ###obj##Comment) AND SET(###obj##History th IS ###obj##History) AND obj(tc) = obj(th) DO
         comment(th) <- tc;
 END
 
@@ -116,7 +221,7 @@ META defineObjectCommentsFiles(obj, NS)
                       IF comment(tf) = tc, '' ORDER tf) + '</ul>');
     footer (###obj##Comment tc) += files(tc);
 
-    WHEN SET(###obj##Comment tc IS ###obj##Comment) AND SET(###obj##File tf IS ###obj##File) DO
+    WHEN SET(###obj##Comment tc IS ###obj##Comment) AND SET(###obj##File tf IS ###obj##File) AND obj(tc) = obj(tf) DO
         comment(tf) <- tc;
 END
 

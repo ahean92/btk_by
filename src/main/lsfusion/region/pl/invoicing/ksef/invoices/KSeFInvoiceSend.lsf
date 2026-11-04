@@ -6,6 +6,9 @@ REQUIRE KSeF, KSeFCertificate, KSeFFakturaSend, KSeFInvoice, KSeFSession, Invoic
 NAMESPACE KSeF;
 
 sendToKSeF 'Wyślij do KSeF' (Invoice i) {
+    APPLY;
+    IF canceled() THEN RETURN;
+
     NEWSESSION {
         TRY {
             createFaktura(i);
@@ -14,7 +17,7 @@ sendToKSeF 'Wyślij do KSeF' (Invoice i) {
             
             IF referenceNumber(faktura(i)) THEN
                 APPLY;
-        } CATCH { catchException('Send invoice to KSeF'); }
+        } CATCH { catchException('Wyślij fakturę do KSeF'); }
     }
 } CONFIRM;
 

@@ -33,62 +33,63 @@ Sections:
 
 ### Scenario: open a session → process a sale → take payment → close the session
 
-1. Open **“Retail” → “Configuration” → “Settings”** and make sure that:
-   - **cash registers** are created and (if needed) linked to computers;
-   - **payment methods** are configured.
-2. Open **“Retail” → “Operations” → “Sessions”**.
-3. Open a session for the required cash register using **“Open session”**.
-4. Open **“Retail” → “Operations”** and start **POS**.
-5. Add items to the receipt (search / barcode scanning); if needed, apply a discount / discount card.
-6. Proceed to payment, enter amounts by payment methods and confirm.
-7. When finished, run **“Close session”**.
+1. In **“Retail” → “Configuration”** make sure that:
+   - **cash registers** are created and (if needed) linked to computers — in the **“Cash registers”** directory;
+   - **payment methods** are configured — on the **“Settings”** form.
+2. Open **“Retail” → “Operations” → “POS”**.
+3. Select the cash register and open a session with **“Open session”**.
+4. Add items to the receipt (search / barcode scanning / touch grid); if needed, apply a discount or discount card.
+5. Proceed to payment, enter amounts by payment methods, and confirm.
+6. When finished, run **“Close session”**.
 
 ### Scenario: process a customer return
 
-Processing a return depends on your configuration (for example, a return by the original receipt or a “free return”). Typical steps:
+A POS return is processed against the original sales receipt:
 
 1. Open POS.
-2. Switch to return mode (if used).
-3. Specify the items and quantities to return.
-4. Process the return payment (cash-out) using the selected payment method.
+2. On the **Session** tab, find the original receipt in the **“Cash receipts”** list and press **“Return”**.
+3. Adjust the items and quantities being returned.
+4. Process the return payment (cash-out): for each payment method you can refund at most what was paid by that method in the original receipt, and the refund total must equal the return amount.
 
 Details: [Returns](returns.md).
 
 ## Navigation
 
-The **“Retail”** section typically contains groups:
+The **“Retail”** section contains two groups:
 
-- **Operations** — POS, sessions, receipt/operation lists within a session.
-- **Configuration** — directories and parameters that affect how the cash register and payments work.
+- **Operations** — the **POS** cashier screen and the **Sessions** list.
+- **Configuration** — the **Settings** form and the **Cash registers** and **Discount cards** directories.
 
 Typical menu items:
 
-- **“Retail” → “Operations” → “Sessions”** — open/close and monitor sessions.
-- **“Retail” → “Operations”** — POS.
+- **“Retail” → “Operations” → “POS”** — the cashier screen for sales and returns.
+- **“Retail” → “Operations” → “Sessions”** — the session list.
 - **“Retail” → “Configuration” → “Settings”** — section parameters.
+
+![The Retail section in the navigator](images/retail-nav.webp)
 
 ## Terms
 
-#### Cash register
+### Cash register
 
 A **[cash register](settings.md)** is a workplace used to process sales and returns. As a rule, a cash register is linked to a specific computer/device.
 
-#### Session
+### Session
 
 A **[session](sessions.md)** is a period of cash register operation between **opening a session** and **closing a session**. POS operations are performed within an open session.
 
-#### POS
+### POS
 
 **[POS](pos.md)** is a cashier screen for processing sales and returns: creating a receipt, adding items, applying discounts, and proceeding to payment.
 
-#### Receipt
+### Receipt
 
 The result of processing a sale or return (in **[POS](pos.md)**): list of lines, prices, discounts, To pay, and payment method(s).
 
-#### Payment method
+### Payment method
 
 A **[payment method](payments.md)** is a rule by which money is received (for example, cash or bank card) and the related financial operations are formed.
 
-#### Discount card
+### Discount card
 
-A **[discount card](discount-cards.md)** is a customer card that can be used to provide a discount and/or identify a customer on the receipt.
+A **[discount card](discount-cards.md)** is a card that identifies a customer on the receipt; the receipt’s customer is set from the card’s holder.

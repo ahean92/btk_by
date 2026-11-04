@@ -23,6 +23,7 @@ If some documents or menu items are missing in your configuration, that is norma
 Sections:
 
 - [Bills](bills.md)
+- [Mobile bills](mobile-bills.md)
 - [Invoices](invoices.md)
 - [Shipments from invoice (if Inventory is used)](shipments-from-invoice.md)
 - [Refunds and corrections](refunds-and-corrections.md)
@@ -44,7 +45,7 @@ Sections:
    - select a [partner](../masterdata/partners.md);
    - specify a [contract](../masterdata/contracts.md) (if used);
    - fill lines ([items](../masterdata/items.md)/services, quantity, price, [tax](taxes.md)).
-3. Move the invoice to status **“To pay”** (if required by your configuration rules).
+3. Move the invoice to status **"To pay"** (action **"Mark as Todo"** in the invoice card; required by the workflow rules).
 4. After the payment is received, register an **[incoming payment](incoming-payments.md)** and match it with the invoice.
 5. Control [debt](debt-and-calendar.md) in reports and in the [payment calendar](debt-and-calendar.md).
 
@@ -78,12 +79,14 @@ Practical guideline:
 
 ## Navigation
 
-The “Invoicing” section typically contains groups:
+The "Invoicing" section contains the groups:
 
-- **Operations** — bills, invoices, payments and correction documents.
-- **Processes** — processing panels and lists (if enabled).
-- **Reporting** — debt/payment/tax reports.
-- **Settings** — parameters and directories.
+- **Operations** — [Bills](bills.md), [Invoices](invoices.md), [Incoming payments](incoming-payments.md), [Outgoing payments](outgoing-payments.md), and Customs declarations.
+- **Processes** — [Mobile bill](mobile-bills.md).
+- **Reporting** — [Payment calendar](debt-and-calendar.md), [Debt aging](debt-and-calendar.md), [Reconciliation statement](debt-and-calendar.md), Payments, Bills report, Invoices report.
+- **Configuration** — the **Settings** form, [Taxes](taxes.md), Payment terms, Banks, Accounts (bank + cash), Analytic accounts.
+
+![The "Invoicing" section in the navigator with expanded groups](images/invoicing-nav.webp)
 
 ## Terms
 
@@ -105,18 +108,29 @@ Withdrawal of funds (payment to a supplier, refund, other payouts).
 
 #### [Debt](debt-and-calendar.md)
 
-The difference between document amounts and the amounts of payments matched with them.
+The outstanding balance with a partner or contract — the signed sum of its active documents and payments. For a single document, the related figure is its remaining amount (**Left**) = amount minus matched payments.
+
+#### [Correction](refunds-and-corrections.md)
+
+A separate document that corrects or reverses a previously-confirmed bill or invoice. Bill corrections support both a **replacement** mode and a **reversal** mode; invoice corrections support replacement only.
+
+#### [Credit note / Refund](refunds-and-corrections.md)
+
+Documents used to record returns:
+
+- a **credit note** is a bill of a special type (the "Return" flag is set on the bill type) and reverses a sales invoice from the supplier's side;
+- a **refund** is an invoice of a special type (the "Return" flag is set on the invoice type) and reverses a purchase bill from the customer's side.
 
 ## Statuses and editing (general principle)
 
-Many documents in “Invoicing” follow a typical lifecycle:
+Many documents in "Invoicing" follow a typical lifecycle:
 
 - **Draft** — the document can be freely edited;
-- **To pay** (or **Ready**, depending on the document) — the document is confirmed for further actions (printing, creating related documents, payments matching);
-- **Done** — the document is completed (often means operations are closed);
+- **To pay** — the document is confirmed for further actions (printing, creating related documents, payments matching);
+- **Paid** — the document is fully paid (in the Bill/Invoice card the action that drives this transition is **"Mark as Paid"**); on payments themselves the equivalent terminal status is **Done**;
 - **Canceled** — the document is excluded from accounting/processes.
 
-Exact behavior depends on configuration. As a rule, the “higher” the status, the more restrictions there are on changing fields and lines.
+Exact behavior depends on configuration. As a rule, the "higher" the status, the more restrictions there are on changing fields and lines.
 
 ## Integrations and dependent contours (user level)
 

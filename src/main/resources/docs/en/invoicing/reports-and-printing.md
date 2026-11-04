@@ -12,7 +12,9 @@ In “Invoicing”, print forms are typically available for:
 
 Printing availability depends on configuration and templates.
 
-### Configuring print templates for “Invoices”
+### Configuring print templates
+
+The same print-template mechanism works identically for [bills](bills.md), [invoices](invoices.md), and both incoming and outgoing [payments](payments.md) — each document type carries its own list of templates (**Bill templates**, **Invoice templates**, **Incoming/Outgoing payment templates**). The steps below use invoices as the example; bills and payments are configured the same way.
 
 #### What is a print template
 
@@ -57,8 +59,8 @@ Fields and actions in the template card:
 - **Open** — opens the current template for viewing (predefined or uploaded).
 - **Upload** — upload your layout file (after upload, it will be used).
 - **Reset** — delete the uploaded file and return to the predefined layout (if it is specified).
-- **Format** — determines how the printing result is generated.
-- **Export file name** — file name when saving the result (if the selected format generates a file).
+- **Format** — determines how the printing result is generated: **PDF**, **DOCX**, **XLSX**, **RTF**, **HTML**, or **Printer** (sends the result straight to a printer without producing a file).
+- **Export file name** — file name when saving the result (used by the file formats; hidden for the **Printer** format).
 
 Recommendations:
 
@@ -74,7 +76,7 @@ Open the **Invoice types** list, select the required type and open the tab with 
 Then:
 
 1. Find the required template in the list.
-2. Enable it for the current type (usually a checkbox like “On”).
+2. Enable it for the current type with the **"Incl."** checkbox.
 
 You can enable multiple templates — then when printing, the system will ask to select one.
 
@@ -118,18 +120,44 @@ Open the template and click **Reset** (if a file was uploaded earlier).
 
 #### Examples of predefined forms
 
-Depending on the delivery, typical predefined print forms for an invoice may be available (for example, delivery note, invoice, universal transfer document, proforma invoice). You can use them as-is or replace them with your own files using **Upload**.
+When a new database is filled with default data, neutral English forms are registered in every edition. Each form has the company logo (taken from the company card), the company address and contacts in the header:
+
+- **Invoice** — for all invoice types; it also shows the payment details of the company account and the paid / remaining amounts;
+- **Credit note** — for the bill types with the **"Return"** flag; it shows the original invoice;
+- **Payment receipt** — for customer payments (bank and cash); it shows the amount received and the documents the payment is matched to;
+- **Quotation** and **Sales order** — for the [sales order](../sales/orders.md) types;
+- **Purchase order** — for the [purchase order](../purchase/orders.md) types;
+- **Delivery note** — for the [shipment](../inventory/shipments.md) type “Shipment”;
+- **Reconciliation statement** — the [statement of mutual settlements](debt-and-calendar.md) with a partner for a period; it has no document types and no template list: one jrxml for the whole system, downloaded and replaced in the **Reconciliation statement template** block of the Settings form.
+
+Regional editions register their own forms next to them (for example, delivery note, invoice, universal transfer document, proforma invoice); when several templates are enabled for a document type, **Print** asks which one to use.
+
+In a database created before these forms appeared, register them by hand: create a template with the template file name `Invoice.jrxml`, `CreditNote.jrxml`, `PaymentReceipt.jrxml`, `SalesQuotation.jrxml`, `SalesOrder.jrxml`, `PurchaseOrder.jrxml` or `DeliveryNote.jrxml` and enable it for the required document types.
+
+The forms are laid out on the column grid of their lines table, so the **XLSX** format gives a tidy sheet as well: every table column becomes a sheet column, each header line gets its own row, and there are no empty rows or columns.
+
+You can use the forms as-is or replace them with your own files using **Upload**.
 
 ## Reports
 
-Most commonly used:
+The base configuration ships six forms in **Invoicing → Reporting**:
 
-- [bills](bills.md) reports;
-- [invoices](invoices.md) reports;
-- [payments](payments.md) reports;
-- [debt](debt-and-calendar.md) reports.
+- **Bills report** — a **pivot** over [bill](bills.md) lines. Document columns include number, date, vendor, status, type, accounts, currency, payment terms and Pay before; line columns include item, its categories, dynamic item-attribute columns, quantity, price and taxes; the pivot **measures** are untaxed amount, tax amount, amount and currency amount. A **Filters** panel and a **Date interval** filter let you scope the data, and you arrange the grouping yourself in the pivot.
+- **Invoices report** — the same pivot over [invoice](invoices.md) lines, with **Customer** and **Department** in place of the vendor fields.
+- **Payments** — a unified view of all incoming and outgoing payments with type, date, number, partner, accounts, company and signed amount; the same form also has an **Accounts** tab that shows current account balances and, with a **Select date** picker, the balance as of a chosen date.
+- **[Payment calendar](debt-and-calendar.md)** — outstanding balance and forecast cash across a date range, with **Type** and **Partner** breakdown tabs.
+- **[Debt aging](debt-and-calendar.md)** — the debt of every partner as of a date, split by how long it is overdue, for customers or for vendors.
+- **[Reconciliation statement](debt-and-calendar.md)** — the mutual settlements with a partner for a period: the opening balance, the documents of the period as a ledger, the closing balance, and a printed two-sided act for the partner to confirm.
+
+![Bills report](images/bill-report.webp)
+
+![Invoices report](images/invoice-report.webp)
+
+![Payments report](images/payments-report.webp)
+
+[Debt](debt-and-calendar.md) figures are also visible directly on the **Bill** and **Invoice** cards (matched payments and remaining debt) and through the dedicated **Partner debts** / **Contract debts** views.
 
 Recommendations:
 
-1. Use a date interval.
-2. For debt analysis, group by [partner](../masterdata/partners.md) and [contract](../masterdata/contracts.md).
+1. Use the **Date interval** filter.
+2. For debt analysis, use the **Partner debts** / **Contract debts** views and their **Overdue** filter, and the **Debt aging** report for the breakdown by days overdue.

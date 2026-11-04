@@ -1,8 +1,8 @@
 ---
-title: Master Data — user documentation
+title: Master data — user documentation
 ---
 
-The **“Master Data”** section contains base data used in documents and processes of other modules: **items**, **partners**, **categories**, **units of measure**, **countries**, **currencies and exchange rates**, **departments**, **contracts**.
+The **“Master data”** section contains base data used in documents and processes of other modules: **items**, **partners**, **categories**, **units of measure**, **countries**, **currencies and exchange rates**, **departments**, **contracts**.
 
 If some menu items or fields are missing in your configuration, that is normal: availability depends on settings and permissions.
 
@@ -24,6 +24,10 @@ Sections:
 - [Contracts](contracts.md)
 - [Activities](activities.md)
 
+Related integrations:
+
+- [Autodesk](autodesk/autodesk.md) — connect 3D models from Autodesk Platform Services (APS) to projects, Bills of Materials, and manufacturing orders.
+
 ## Quick start
 
 Below is a typical sequence for filling directories before you start working.
@@ -31,7 +35,7 @@ Below is a typical sequence for filling directories before you start working.
 1. Fill **countries** if you use addresses with a country.
 2. Fill **currencies** and specify the **default currency**.
 3. Fill **exchange rates** (if you have settlements in different currencies).
-4. Create **units of measure** and, if needed, **categories**.
+4. Create **units of measure** and **categories** (every item requires a category).
 5. Create **items** (products/services): specify a category and unit of measure.
 6. Create **partners** (customers/suppliers, etc.) and fill contact data.
 7. If needed, create **departments** for partners (locations, branches, addresses).
@@ -39,18 +43,19 @@ Below is a typical sequence for filling directories before you start working.
 
 ## Navigation
 
-Master data is usually available via the **“Master Data”** menu section. Most often, it contains:
+Master data is usually available via the **“Master data”** menu section. Most often, it contains:
 
-- **Partners**
-- **Items**
+- **Partners**, **Companies**, **Positions**, **Employees** (see [Partners → Employees](partners.md#employees))
+- **Items** and **Attributes** (see [Items → Attributes](items.md#attributes))
 - **Categories**
 - **Units of measure**
-- **Departments**
 - **Countries**
-- **Currencies**
-- **Exchange rates**
+- **Currencies** and **Exchange rates**
 - **Contracts**
 - **Activities**
+- **Settings**
+
+Departments are not a separate menu item — they are maintained on the partner card (see [Departments](departments.md)).
 
 ## General rules for working with directories
 

@@ -14,6 +14,7 @@ wordsDateDuration = FORMULA STRING 'CASE WHEN ($1) < 30 THEN ($1)||\'d\' WHEN ($
 textDateDuration (DATE d) = CONCAT '', '{In} ' IF currentDate() < d, (IF currentDate() = d THEN 'Today' ELSE wordsDateDuration(abs(daysBetweenDates(d, currentDate())))), ' {ago}' IF currentDate() > d;
 
 days (INTERVAL[DATE] i) = daysBetweenDates(to(i), from(i)) + 1;
+firstDayOfYear (DATE date) = [ FORMULA DATE PG '(date_trunc(\'YEAR\', $1)::date)', MS 'DATEADD(year, DATEDIFF(year, 0, $1), 0)'](date AS DATE);
 prevMonthInterval (INTERVAL[DATE] i) =
     IF from(i) = firstDayOfMonth(from(i)) AND to(i) = lastDayOfMonth(from(i)) THEN
         interval(firstDayOfMonth(subtract(from(i), 1)), lastDayOfMonth(subtract(from(i), 1)))
@@ -103,5 +104,5 @@ CLASS DatePeriod 'Date period' {
     yearly 'Yearly'
 }
 
-id '{ID}' (DatePeriod p) = getWord(name(p), '.', 2) IF p IS DatePeriod CHARWIDTH 10;
+id '{ID}' (DatePeriod p) = basicName(p) IF p IS DatePeriod CHARWIDTH 10;
 name '{Name}' (DatePeriod p) = caption(p) IF p IS DatePeriod CHARWIDTH 15;
