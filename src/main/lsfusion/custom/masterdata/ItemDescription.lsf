@@ -1,11 +1,20 @@
 MODULE ItemDescription;
 
-REQUIRE Item;
+REQUIRE Item, Product, ReceiptSearch;
 
-// колонка «Описание» (каст TEXT -> STRING) в списке номенклатуры,
-// чтобы искать товар по названию у поставщика через фильтр колонки
+// колонка «Описание» (каст TEXT -> STRING) в списке номенклатуры чтобы искать товар по названию у поставщика через фильтр колонки
 shortDescription 'Описание' (Item i) = STRING[200](description(i)) CHARWIDTH 30;
 
 EXTEND FORM items
     PROPERTIES(i) READONLY shortDescription
+;
+
+// тот же столбец в подборе товара (LIST-форма Product): Заказ поставщику и другие документы, где выбирается Product
+EXTEND FORM products
+    PROPERTIES(p) READONLY shortDescription
+;
+
+// вкладка «Поиск» (подбор) в Приёмке
+EXTEND FORM receipt
+    PROPERTIES(itm) READONLY shortDescription
 ;
